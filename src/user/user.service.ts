@@ -10,7 +10,7 @@ import {
   getAll,
   getOne,
   updateOne,
-} from 'utils/handlerFactory';
+} from 'shared/handlerFactory';
 
 @Injectable()
 export class UserService {

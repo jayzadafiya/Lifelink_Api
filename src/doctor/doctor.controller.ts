@@ -11,8 +11,8 @@ import {
 import { DoctorService } from './doctor.service';
 import { UpdateUserDto } from 'src/user/dto/update-user.dto';
 import { Doctor } from './schema/doctor.schema';
-import { RolesGuard } from 'src/role/role.gurd';
-import { Roles } from 'src/role/role.decorator';
+import { RolesGuard } from 'shared/role/role.gurd';
+import { Roles } from 'shared/role/role.decorator';
 import { Role } from 'utils/role.enum';
 import mongoose from 'mongoose';
 
@@ -20,7 +20,7 @@ import mongoose from 'mongoose';
 export class DoctorController {
   constructor(private doctorService: DoctorService) {}
 
-  @Get('/:id')
+  @Get(':id')
   async getUser(@Param('id') id: mongoose.Types.ObjectId): Promise<Doctor> {
     return this.doctorService.getDoctorById(id);
   }

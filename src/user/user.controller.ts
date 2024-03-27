@@ -10,8 +10,8 @@ import {
 import { UserService } from './user.service';
 import { User } from './schema/user.schema';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { RolesGuard } from 'src/role/role.gurd';
-import { Roles } from 'src/role/role.decorator';
+import { RolesGuard } from 'shared/role/role.gurd';
+import { Roles } from 'shared/role/role.decorator';
 import { Role } from 'utils/role.enum';
 import mongoose from 'mongoose';
 

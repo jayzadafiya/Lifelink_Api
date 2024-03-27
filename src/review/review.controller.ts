@@ -10,8 +10,8 @@ import {
 } from '@nestjs/common';
 import { ReviewService } from './review.service';
 import { Review } from './schema/review.schema';
-import { RolesGuard } from 'src/role/role.gurd';
-import { Roles } from 'src/role/role.decorator';
+import { RolesGuard } from 'shared/role/role.gurd';
+import { Roles } from 'shared/role/role.decorator';
 import { Role } from 'utils/role.enum';
 import { CreateReviewDto } from './dto/create-review.dto';
 import mongoose from 'mongoose';

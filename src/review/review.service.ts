@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Review } from './schema/review.schema';
 import { DoctorService } from 'src/doctor/doctor.service';
-import { createOne, getAll } from 'utils/handlerFactory';
+import { createOne, getAll } from 'shared/handlerFactory';
 import { CreateReviewDto } from './dto/create-review.dto';
 
 @Injectable()
@@ -25,7 +25,7 @@ export class ReviewService {
     const doctor = await this.doctorService.getDoctorById(doctorId);
 
     if (!doctor || doctor.isApproved !== 'approved') {
-      throw new BadRequestException('Doctor not found!!');
+      throw new NotFoundException('Doctor not found!!');
     }
 
     const review = await createOne(this.ReviewModel, {

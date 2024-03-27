@@ -38,8 +38,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
       errorMessage = exception['message'];
     }
 
-    console.log(exception);
-
     response.status(status).json({
       message: errorMessage,
       statusCode: status,

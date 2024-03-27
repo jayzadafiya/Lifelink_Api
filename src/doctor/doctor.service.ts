@@ -9,7 +9,7 @@ import {
   getAll,
   getOne,
   updateOne,
-} from 'utils/handlerFactory';
+} from 'shared/handlerFactory';
 import { UpdateUserDto } from 'src/user/dto/update-user.dto';
 
 @Injectable()

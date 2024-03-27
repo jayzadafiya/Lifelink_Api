@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -8,6 +8,7 @@ import { DoctorModule } from './doctor/doctor.module';
 import { UserModule } from './user/user.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ReviewModule } from './review/review.module';
+import { MongoDBIdMiddleware } from 'shared/mongodb-id.middleware';
 
 @Module({
   imports: [
@@ -28,4 +29,11 @@ import { ReviewModule } from './review/review.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(MongoDBIdMiddleware).forRoutes(
+      // { path: '/doctors/:doctorId/*', method: RequestMethod.ALL },
+      { path: '*/:id/*', method: RequestMethod.ALL },
+    );
+  }
+}
