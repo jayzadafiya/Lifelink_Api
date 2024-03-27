@@ -4,7 +4,13 @@ import { User } from './schema/user.schema';
 import mongoose from 'mongoose';
 import { CreateUserDto } from 'src/auth/dto/signup.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { deleteOne, getAll, getOne, updateOne } from 'utils/handlerFactory';
+import {
+  createOne,
+  deleteOne,
+  getAll,
+  getOne,
+  updateOne,
+} from 'utils/handlerFactory';
 
 @Injectable()
 export class UserService {
@@ -16,7 +22,7 @@ export class UserService {
     return await this.UserModel.findOne({ email }).select(selectString);
   }
 
-  async getUserById(id: string): Promise<User> {
+  async getUserById(id: mongoose.Types.ObjectId): Promise<User> {
     return getOne(this.UserModel, id);
   }
 
@@ -25,14 +31,17 @@ export class UserService {
   }
 
   async createUser(data: CreateUserDto): Promise<User> {
-    return await this.UserModel.create(data);
+    return createOne(this.UserModel, data);
   }
 
-  async updateUser(updateData: UpdateUserDto, id: string): Promise<User> {
+  async updateUser(
+    updateData: UpdateUserDto,
+    id: mongoose.Types.ObjectId,
+  ): Promise<User> {
     return updateOne(this.UserModel, id, updateData);
   }
 
-  async deleteUser(id: string): Promise<string> {
+  async deleteUser(id: mongoose.Types.ObjectId): Promise<string> {
     return deleteOne(this.UserModel, id);
   }
 }

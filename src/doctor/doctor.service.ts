@@ -1,9 +1,15 @@
-import mongoose from 'mongoose';
+import mongoose, { ObjectId } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Doctor } from './schema/doctor.schema';
 import { CreateUserDto } from 'src/auth/dto/signup.dto';
-import { deleteOne, getAll, getOne, updateOne } from 'utils/handlerFactory';
+import {
+  createOne,
+  deleteOne,
+  getAll,
+  getOne,
+  updateOne,
+} from 'utils/handlerFactory';
 import { UpdateUserDto } from 'src/user/dto/update-user.dto';
 
 @Injectable()
@@ -16,23 +22,66 @@ export class DoctorService {
     return await this.DoctorModel.findOne({ email }).select(selectString);
   }
 
-  async getDoctorById(id: string): Promise<Doctor> {
-    return getOne(this.DoctorModel, id);
+  async getDoctorById(id: mongoose.Types.ObjectId): Promise<Doctor> {
+    const doctor = await getOne(this.DoctorModel, id);
+
+    return doctor.populate('reviews');
   }
 
-  async getAllDoctor(): Promise<Doctor[]> {
-    return getAll(this.DoctorModel);
+  async getAllDoctor(query?: string): Promise<Doctor[]> {
+    let doctors;
+    console.log(query);
+    if (query && Object.keys(query).length > 0) {
+      doctors = await this.DoctorModel.find({
+        isApproved: 'approved',
+        $or: [
+          { name: { $regex: query, $options: 'i' } },
+          { specialization: { $regex: query, $options: 'i' } },
+        ],
+      });
+    } else {
+      doctors = await getAll(this.DoctorModel, { isApproved: 'approved' });
+    }
+
+    return doctors;
   }
 
   async createDoctor(data: CreateUserDto): Promise<Doctor> {
-    return await this.DoctorModel.create(data);
+    return createOne(this.DoctorModel, data);
   }
 
-  async updateDoctor(updateData: UpdateUserDto, id: string): Promise<Doctor> {
+  async updateDoctor(
+    id: mongoose.Types.ObjectId,
+    updateData: UpdateUserDto,
+  ): Promise<Doctor> {
     return updateOne(this.DoctorModel, id, updateData);
   }
 
-  async deleteDoctor(id: string): Promise<string> {
+  async deleteDoctor(id: mongoose.Types.ObjectId): Promise<string> {
     return deleteOne(this.DoctorModel, id);
+  }
+
+  async updateReviews(doctorId: mongoose.Types.ObjectId, reviewId: ObjectId) {
+    await this.DoctorModel.findByIdAndUpdate(
+      doctorId,
+      { $push: { reviews: reviewId } },
+      { new: true },
+    );
+    // const doctor = await this.DoctorModel.findById(doctorId);
+    // doctor.reviews.push(reviewId);
+    // await doctor.save();
+  }
+
+  async updateDoctroRatings(
+    doctorId: mongoose.Types.ObjectId,
+    totalRating: number,
+    averageRating: number,
+  ) {
+    await this.DoctorModel.findByIdAndUpdate(
+      doctorId,
+      { totalRating: totalRating, averageRating: averageRating },
+
+      { new: true },
+    );
   }
 }

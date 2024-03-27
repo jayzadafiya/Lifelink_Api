@@ -30,7 +30,7 @@ export class RolesGuard implements CanActivate {
     }
     try {
       const payload = await this.jwtService.verifyAsync(token, {
-        secret: 'okaysomthigngoorjofjdo',
+        secret: process.env.JWT_SECRET_KEY,
       });
 
       if (!payload) {

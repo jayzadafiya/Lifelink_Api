@@ -1,7 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import mongoose from 'mongoose';
 import { Document } from 'mongoose';
+// import { Review } from 'src/review/schema/review.schema';
 import { bcryptPassword } from 'utils/helperFunction';
-// import { Review } from './Review';
 // import { Appointment } from './Appointment';
 
 @Schema()
@@ -48,8 +49,8 @@ export class Doctor extends Document {
   @Prop([String])
   timeSlots?: string[];
 
-  //   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }] })
-  //   reviews?: Review[];
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }] })
+  reviews?: mongoose.Schema.Types.ObjectId[];
 
   @Prop({ default: 0 })
   averageRating?: number;
@@ -73,3 +74,38 @@ DoctorSchema.pre('save', async function (next) {
   this.passwordConfirm = undefined;
   next();
 });
+
+
+// DoctorSchema.post('save', async function (doc) {
+//   const doctorId = doc._id;
+
+//   const cursor = await this.collection.aggregate([
+//     {
+//       $match: { doctor: doctorId },
+//     },
+//     {
+//       $group: {
+//         _id: '$doctor',
+//         numOfRating: { $sum: 1 },
+//         avgRating: { $avg: '$rating' },
+//       },
+//     },
+//   ]);
+
+//   cursor
+//     .toArray()
+//     .then(async (results) => {
+//       const stats = results[0];
+
+//       console.log(stats);
+
+//       const { totalRating, averageRating } =
+//         stats.length > 0 ? stats[0] : { totalRating: 0, averageRating: 0 };
+
+//       this.totalRating = totalRating;
+//       this.averageRating = averageRating;
+//     })
+//     .catch((error) => {
+//       console.error('Error retrieving aggregation result:', error);
+//     });
+// }); 
