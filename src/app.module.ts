@@ -9,6 +9,7 @@ import { UserModule } from './user/user.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ReviewModule } from './review/review.module';
 import { MongoDBIdMiddleware } from 'shared/mongodb-id.middleware';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -21,6 +22,12 @@ import { MongoDBIdMiddleware } from 'shared/mongodb-id.middleware';
       signOptions: { expiresIn: process.env.JWT_TOKEN_EXPIRESIN },
     }),
     MongooseModule.forRoot(process.env.MONGO_URL),
+    ThrottlerModule.forRoot([
+      {
+        ttl: parseInt(process.env.TIME_TO_LIVE),
+        limit: parseInt(process.env.LIMIT),
+      },
+    ]),
     AuthModule,
     DoctorModule,
     UserModule,
