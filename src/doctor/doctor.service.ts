@@ -84,4 +84,10 @@ export class DoctorService {
       { new: true },
     );
   }
+
+  async getDoctorFromAppointment(
+    doctorId: mongoose.Types.ObjectId[],
+  ): Promise<Doctor[]> {
+    return this.DoctorModel.find({ _id: { $in: doctorId } });
+  }
 }

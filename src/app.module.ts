@@ -10,6 +10,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ReviewModule } from './review/review.module';
 import { MongoDBIdMiddleware } from 'shared/mongodb-id.middleware';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { AppointmentModule } from './appointment/appointment.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
     DoctorModule,
     UserModule,
     ReviewModule,
+    AppointmentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

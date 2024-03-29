@@ -3,9 +3,11 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Put,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { DoctorService } from './doctor.service';
@@ -15,10 +17,16 @@ import { RolesGuard } from 'shared/role/role.gurd';
 import { Roles } from 'shared/role/role.decorator';
 import { Role } from 'utils/role.enum';
 import mongoose from 'mongoose';
+import { Request } from 'express';
+import { AppointmentService } from 'src/appointment/appointment.service';
+import { Appointment } from 'src/appointment/schema/appointment.schema';
 
 @Controller('doctors')
 export class DoctorController {
-  constructor(private doctorService: DoctorService) {}
+  constructor(
+    private doctorService: DoctorService,
+    private appointmentService: AppointmentService,
+  ) {}
 
   @Get(':id')
   async getUser(@Param('id') id: mongoose.Types.ObjectId): Promise<Doctor> {
@@ -47,5 +55,22 @@ export class DoctorController {
     @Param('id') id: mongoose.Types.ObjectId,
   ): Promise<string> {
     return this.doctorService.deleteDoctor(id);
+  }
+
+  @Get('/profile/me')
+  async getDoctorProfile(
+    @Req() req: Request | any,
+  ): Promise<{ doctorDetails: Doctor; appointments: Appointment[] }> {
+    const doctor = await this.doctorService.getDoctorById(req.user.userId);
+
+    if (!doctor) {
+      throw new NotFoundException('Doctor not found!!');
+    }
+
+    const appointments = await this.appointmentService.getAppointmentUserId(
+      doctor._id,
+    );
+
+    return { doctorDetails: doctor, appointments: appointments };
   }
 }

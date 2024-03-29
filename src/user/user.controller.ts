@@ -5,6 +5,8 @@ import {
   Get,
   Param,
   Put,
+  Req,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
@@ -14,15 +16,32 @@ import { RolesGuard } from 'shared/role/role.gurd';
 import { Roles } from 'shared/role/role.decorator';
 import { Role } from 'utils/role.enum';
 import mongoose from 'mongoose';
+import { Request } from 'express';
+import { Doctor } from 'src/doctor/schema/doctor.schema';
+import { DoctorService } from 'src/doctor/doctor.service';
+import { AppointmentService } from 'src/appointment/appointment.service';
 
 @UseGuards(RolesGuard)
 @Controller('users')
 export class UserController {
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private doctorService: DoctorService,
+    private appointmentService: AppointmentService,
+  ) {}
 
-  @Roles(Role.Patient)
+  @Roles(Role.Patient, Role.Admin)
   @Get('/:id')
-  async getUser(@Param('id') id: mongoose.Types.ObjectId): Promise<User> {
+  async getUser(
+    @Param('id') id: mongoose.Types.ObjectId,
+    @Req() req: Request | any,
+  ): Promise<User> {
+    if (req.user.role === 'patient' && req.user.userId !== id.toString()) {
+      throw new UnauthorizedException(
+        'You can only access your own information.',
+      );
+    }
+
     return this.userService.getUserById(id);
   }
 
@@ -45,5 +64,22 @@ export class UserController {
   @Delete('/:id')
   async dleeteUser(@Param('id') id: mongoose.Types.ObjectId): Promise<string> {
     return this.userService.deleteUser(id);
+  }
+
+  @Roles(Role.Patient)
+  @Get('/my-appointments')
+  async getMyAppointment(@Req() req: Request | any): Promise<Doctor[]> {
+    const appointments = await this.appointmentService.getAppointmentUserId(
+      req.user.userId,
+    );
+
+    const doctorId = appointments.map((appointment) => appointment.doctor._id);
+    console.log(doctorId);
+
+    const doctors = await this.doctorService.getDoctorFromAppointment(doctorId);
+
+    console.log(doctors);
+
+    return doctors;
   }
 }

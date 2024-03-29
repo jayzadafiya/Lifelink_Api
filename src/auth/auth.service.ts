@@ -76,15 +76,15 @@ export class AuthService {
     ) {
       throw new UnauthorizedException('Please enter valid email or password ');
     }
-
     const payload = { email: user.email, role: user.role, userId: user._id };
-    console.log(payload);
 
     const token = await this.jwtService.signAsync(payload);
 
     res.set('Authorization', `Bearer ${token}`);
 
     res.json({
+      role: payload.role,
+      data: user,
       token,
     });
   }
