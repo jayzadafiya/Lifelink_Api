@@ -30,6 +30,28 @@ export class UserController {
     private appointmentService: AppointmentService,
   ) {}
 
+  @Roles(Role.Patient)
+  @Get('/profile')
+  async getMe(@Req() req: any): Promise<User> {
+    return this.userService.getUserById(
+      new mongoose.Types.ObjectId(req.user.userId),
+    );
+  }
+
+  @Roles(Role.Patient)
+  @Get('/my-appointments')
+  async getMyAppointment(@Req() req: Request | any): Promise<Doctor[]> {
+    const appointments = await this.appointmentService.getAppointmentUserId(
+      req.user.userId,
+    );
+
+    const doctorId = appointments.map((appointment) => appointment.doctor._id);
+
+    const doctors = await this.doctorService.getDoctorFromAppointment(doctorId);
+
+    return doctors;
+  }
+
   @Roles(Role.Patient, Role.Admin)
   @Get('/:id')
   async getUser(
@@ -64,22 +86,5 @@ export class UserController {
   @Delete('/:id')
   async dleeteUser(@Param('id') id: mongoose.Types.ObjectId): Promise<string> {
     return this.userService.deleteUser(id);
-  }
-
-  @Roles(Role.Patient)
-  @Get('/my-appointments')
-  async getMyAppointment(@Req() req: Request | any): Promise<Doctor[]> {
-    const appointments = await this.appointmentService.getAppointmentUserId(
-      req.user.userId,
-    );
-
-    const doctorId = appointments.map((appointment) => appointment.doctor._id);
-    console.log(doctorId);
-
-    const doctors = await this.doctorService.getDoctorFromAppointment(doctorId);
-
-    console.log(doctors);
-
-    return doctors;
   }
 }

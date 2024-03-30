@@ -44,4 +44,6 @@ export class UserService {
   async deleteUser(id: mongoose.Types.ObjectId): Promise<string> {
     return deleteOne(this.UserModel, id);
   }
+
+  
 }

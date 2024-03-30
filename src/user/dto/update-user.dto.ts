@@ -1,5 +1,5 @@
-import { IsEnum, IsOptional, IsString } from 'class-validator';
-import { Role } from 'utils/role.enum';
+import { Transform } from 'class-transformer';
+import { IsOptional, IsString } from 'class-validator';
 
 export class UpdateUserDto {
   @IsOptional()
@@ -11,8 +11,9 @@ export class UpdateUserDto {
   email?: string;
 
   @IsOptional()
-  @IsEnum(Role)
-  role?: string;
+  @IsString()
+  @Transform(({ value }) => value.toUpperCase())
+  bloodType?: string;
 
   @IsOptional()
   @IsString()

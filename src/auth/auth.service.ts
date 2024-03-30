@@ -61,7 +61,6 @@ export class AuthService {
 
   async login(loginData: LoginUserDto, res: Response): Promise<void> {
     const { email } = loginData;
-    console.log(loginData);
 
     let user = null;
     const patient = await this.userService.getUser(email, '+password');
@@ -83,7 +82,6 @@ export class AuthService {
     res.set('Authorization', `Bearer ${token}`);
 
     res.json({
-      role: payload.role,
       data: user,
       token,
     });
