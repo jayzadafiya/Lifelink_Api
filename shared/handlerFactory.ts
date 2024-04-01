@@ -14,7 +14,7 @@ export const getAll = async <T>(
   model: Model<T>,
   options?: any,
 ): Promise<T[] | null> => {
-  return model.find({ options });
+  return model.find(options);
 };
 
 export const createOne = async <T>(

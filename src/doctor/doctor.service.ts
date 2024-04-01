@@ -30,7 +30,6 @@ export class DoctorService {
 
   async getAllDoctor(query?: string): Promise<Doctor[]> {
     let doctors;
-    console.log(query);
     if (query && Object.keys(query).length > 0) {
       doctors = await this.DoctorModel.find({
         isApproved: 'approved',

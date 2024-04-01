@@ -21,21 +21,39 @@ import { Request } from 'express';
 import { AppointmentService } from 'src/appointment/appointment.service';
 import { Appointment } from 'src/appointment/schema/appointment.schema';
 
-@Controller('doctors')
+@Controller('/doctors')
 export class DoctorController {
   constructor(
     private doctorService: DoctorService,
     private appointmentService: AppointmentService,
   ) {}
 
-  @Get(':id')
-  async getUser(@Param('id') id: mongoose.Types.ObjectId): Promise<Doctor> {
-    return this.doctorService.getDoctorById(id);
-  }
-
   @Get('/')
   async getAllDoctor(@Query('query') query?: string): Promise<Doctor[]> {
     return this.doctorService.getAllDoctor(query);
+  }
+
+  @UseGuards(RolesGuard)
+  @Get('/profile')
+  async getDoctorProfile(
+    @Req() req: Request | any,
+  ): Promise<{ doctorDetails: Doctor; appointments: Appointment[] }> {
+    const doctor = await this.doctorService.getDoctorById(req.user.userId);
+
+    if (!doctor) {
+      throw new NotFoundException('Doctor not found!!');
+    }
+
+    const appointments = await this.appointmentService.getAppointmentUserId(
+      doctor._id,
+    );
+
+    return { doctorDetails: doctor, appointments: appointments };
+  }
+
+  @Get('/:id')
+  async getUser(@Param('id') id: mongoose.Types.ObjectId): Promise<Doctor> {
+    return this.doctorService.getDoctorById(id);
   }
 
   @UseGuards(RolesGuard)
@@ -55,22 +73,5 @@ export class DoctorController {
     @Param('id') id: mongoose.Types.ObjectId,
   ): Promise<string> {
     return this.doctorService.deleteDoctor(id);
-  }
-
-  @Get('/profile/me')
-  async getDoctorProfile(
-    @Req() req: Request | any,
-  ): Promise<{ doctorDetails: Doctor; appointments: Appointment[] }> {
-    const doctor = await this.doctorService.getDoctorById(req.user.userId);
-
-    if (!doctor) {
-      throw new NotFoundException('Doctor not found!!');
-    }
-
-    const appointments = await this.appointmentService.getAppointmentUserId(
-      doctor._id,
-    );
-
-    return { doctorDetails: doctor, appointments: appointments };
   }
 }

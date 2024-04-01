@@ -1,9 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { Document } from 'mongoose';
-// import { Review } from 'src/review/schema/review.schema';
 import { bcryptPassword } from 'utils/helperFunction';
-// import { Appointment } from './Appointment';
+import { Role } from 'utils/role.enum';
 
 @Schema()
 export class Doctor extends Document {
@@ -28,7 +27,7 @@ export class Doctor extends Document {
   @Prop()
   ticketPrice?: number;
 
-  @Prop()
+  @Prop({ enum: Role })
   role?: string;
 
   @Prop()
@@ -75,7 +74,6 @@ DoctorSchema.pre('save', async function (next) {
   next();
 });
 
-
 // DoctorSchema.post('save', async function (doc) {
 //   const doctorId = doc._id;
 
@@ -108,4 +106,4 @@ DoctorSchema.pre('save', async function (next) {
 //     .catch((error) => {
 //       console.error('Error retrieving aggregation result:', error);
 //     });
-// }); 
+// });

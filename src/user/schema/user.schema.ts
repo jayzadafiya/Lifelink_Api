@@ -21,7 +21,7 @@ export class User extends Document {
   @Prop()
   photo?: string;
 
-  @Prop({ enum: Role, default: 'patient' })
+  @Prop({ enum: Role})
   role?: string;
 
   @Prop({ enum: ['male', 'female', 'other'] })
