@@ -33,20 +33,54 @@ export class Doctor extends Document {
   @Prop()
   specialization?: string;
 
-  @Prop([String])
-  qualifications?: string[];
-
-  @Prop([String])
-  experiences?: string[];
-
   @Prop({ maxlength: 50 })
   bio?: string;
 
   @Prop()
   about?: string;
 
-  @Prop([String])
-  timeSlots?: string[];
+  @Prop([
+    {
+      startingDate: String,
+      endingDate: String,
+      degree: String,
+      university: String,
+    },
+  ])
+  qualifications?: {
+    startingDate: string;
+    endingDate: string;
+    degree: string;
+    university: string;
+  }[];
+
+  @Prop([
+    {
+      startingDate: String,
+      endingDate: String,
+      position: String,
+      place: String,
+    },
+  ])
+  experiences?: {
+    startingDate: string;
+    endingDate: string;
+    position: string;
+    place: string;
+  }[];
+
+  @Prop([
+    {
+      day: String,
+      startingTime: String,
+      endingTime: String,
+    },
+  ])
+  timeSlots?: {
+    day: string;
+    startingTime: string;
+    endingTime: string;
+  }[];
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }] })
   reviews?: mongoose.Schema.Types.ObjectId[];
@@ -59,9 +93,6 @@ export class Doctor extends Document {
 
   @Prop({ enum: ['pending', 'approved', 'cancelled'], default: 'pending' })
   isApproved?: string;
-
-  //   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Appointment' }] })
-  //   appointments?: Appointment[];
 }
 
 export const DoctorSchema = SchemaFactory.createForClass(Doctor);

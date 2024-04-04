@@ -11,7 +11,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { DoctorService } from './doctor.service';
-import { UpdateUserDto } from 'src/user/dto/update-user.dto';
 import { Doctor } from './schema/doctor.schema';
 import { RolesGuard } from 'shared/role/role.gurd';
 import { Roles } from 'shared/role/role.decorator';
@@ -20,6 +19,7 @@ import mongoose from 'mongoose';
 import { Request } from 'express';
 import { AppointmentService } from 'src/appointment/appointment.service';
 import { Appointment } from 'src/appointment/schema/appointment.schema';
+import { UpdateDoctorDto } from './dto/updateDoctor.dto';
 
 @Controller('/doctors')
 export class DoctorController {
@@ -60,7 +60,7 @@ export class DoctorController {
   @Roles(Role.Doctor)
   @Put('/:id')
   async updateDoctor(
-    @Body() updateData: UpdateUserDto,
+    @Body() updateData: UpdateDoctorDto,
     @Param('id') id: mongoose.Types.ObjectId,
   ): Promise<Doctor> {
     return this.doctorService.updateDoctor(id, updateData);
