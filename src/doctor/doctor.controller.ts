@@ -69,7 +69,7 @@ export class DoctorController {
   @UseGuards(RolesGuard)
   @Roles(Role.Doctor)
   @Delete('/:id')
-  async dleeteDoctor(
+  async deleteDoctor(
     @Param('id') id: mongoose.Types.ObjectId,
   ): Promise<string> {
     return this.doctorService.deleteDoctor(id);

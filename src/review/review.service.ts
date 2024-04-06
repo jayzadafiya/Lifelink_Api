@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Review } from './schema/review.schema';
 import { DoctorService } from 'src/doctor/doctor.service';
@@ -26,6 +26,12 @@ export class ReviewService {
 
     if (!doctor || doctor.isApproved !== 'approved') {
       throw new NotFoundException('Doctor not found!!');
+    }
+
+    const existingReview=await this.ReviewModel.find({ doctor: doctorId, user: userId });
+
+    if(existingReview.length>0) {
+      throw new ConflictException("Review already done by this User")
     }
 
     const review = await createOne(this.ReviewModel, {
@@ -56,11 +62,13 @@ export class ReviewService {
 
     const { totalRating, averageRating } =
       stats.length > 0 ? stats[0] : { totalRating: 0, averageRating: 0 };
+    // Round the average rating to two decimal places
+    const roundedAverageRating = averageRating.toFixed(2);
 
     await this.doctorService.updateDoctroRatings(
       doctorId,
       totalRating,
-      averageRating,
+      roundedAverageRating,
     );
   }
 }

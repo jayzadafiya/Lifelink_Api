@@ -39,6 +39,9 @@ export class Doctor extends Document {
   @Prop()
   about?: string;
 
+  @Prop()
+  fees: number;
+
   @Prop([
     {
       startingDate: String,
