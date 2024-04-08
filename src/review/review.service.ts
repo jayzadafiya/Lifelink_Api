@@ -1,5 +1,9 @@
 import mongoose from 'mongoose';
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Review } from './schema/review.schema';
 import { DoctorService } from 'src/doctor/doctor.service';
@@ -28,10 +32,13 @@ export class ReviewService {
       throw new NotFoundException('Doctor not found!!');
     }
 
-    const existingReview=await this.ReviewModel.find({ doctor: doctorId, user: userId });
+    const existingReview = await this.ReviewModel.find({
+      doctor: doctorId,
+      user: userId,
+    });
 
-    if(existingReview.length>0) {
-      throw new ConflictException("Review already done by this User")
+    if (existingReview.length > 0) {
+      throw new ConflictException('Review already done by this User');
     }
 
     const review = await createOne(this.ReviewModel, {
