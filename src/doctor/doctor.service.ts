@@ -10,7 +10,7 @@ import {
   getOne,
   updateOne,
 } from 'shared/handlerFactory';
-import { UpdateDoctorDto } from './dto/updateDoctor.dto';
+import { FormDto } from './dto/updateDoctor.dto';
 
 @Injectable()
 export class DoctorService {
@@ -51,7 +51,7 @@ export class DoctorService {
 
   async updateDoctor(
     id: mongoose.Types.ObjectId,
-    updateData: UpdateDoctorDto,
+    updateData: FormDto,
   ): Promise<Doctor> {
     return updateOne(this.DoctorModel, id, updateData);
   }

@@ -11,6 +11,8 @@ import { ReviewModule } from './review/review.module';
 import { MongoDBIdMiddleware } from 'shared/mongodb-id.middleware';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AppointmentModule } from './appointment/appointment.module';
+import { BookingModule } from './booking/booking.module';
+import { TimeslotModule } from './timeslot/timeslot.module';
 
 @Module({
   imports: [
@@ -34,6 +36,8 @@ import { AppointmentModule } from './appointment/appointment.module';
     UserModule,
     ReviewModule,
     AppointmentModule,
+    BookingModule,
+    TimeslotModule,
   ],
   controllers: [AppController],
   providers: [AppService],

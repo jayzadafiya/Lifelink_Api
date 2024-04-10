@@ -40,6 +40,9 @@ export class Doctor extends Document {
   about?: string;
 
   @Prop()
+  address?: string;
+
+  @Prop()
   fees: number;
 
   @Prop([
@@ -74,13 +77,15 @@ export class Doctor extends Document {
 
   @Prop([
     {
-      day: String,
+      slot:String,
+      appointments_time: Number,
       startingTime: String,
       endingTime: String,
     },
   ])
-  timeSlots?: {
-    day: string;
+  timeSlots_data?: {
+    slot:string,
+    appointments_time: number;
     startingTime: string;
     endingTime: string;
   }[];

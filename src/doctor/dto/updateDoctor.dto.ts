@@ -8,9 +8,13 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
-class TimeSlotDto {
+class TimeSlotDataDto {
+  @IsNotEmpty()
   @IsString()
-  day: string;
+  slot: string;
+
+  @IsNumber()
+  appointments_time: number;
 
   @IsString()
   startingTime: string;
@@ -47,7 +51,7 @@ class QualificationDto {
   university: string;
 }
 
-export class UpdateDoctorDto {
+export class FormDto {
   @IsString()
   @IsOptional()
   bio?: string;
@@ -75,12 +79,16 @@ export class UpdateDoctorDto {
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => TimeSlotDto)
-  timeSlots: TimeSlotDto[];
+  @Type(() => TimeSlotDataDto)
+  timeSlots_data: TimeSlotDataDto[];
 
   @IsString()
   @IsOptional()
   bloodType?: string;
+
+  @IsString()
+  @IsOptional()
+  address?: string;
 
   @IsOptional()
   @IsArray()
@@ -105,4 +113,9 @@ export class UpdateDoctorDto {
   @IsNumber()
   @IsOptional()
   fees?: number;
+}
+
+export class UpdateDoctorDto {
+  formData: FormDto;
+  timeSlots:string[];
 }

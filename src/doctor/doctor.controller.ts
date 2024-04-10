@@ -20,12 +20,14 @@ import { Request } from 'express';
 import { AppointmentService } from 'src/appointment/appointment.service';
 import { Appointment } from 'src/appointment/schema/appointment.schema';
 import { UpdateDoctorDto } from './dto/updateDoctor.dto';
+import { TimeslotService } from 'src/timeslot/timeslot.service';
 
 @Controller('/doctors')
 export class DoctorController {
   constructor(
     private doctorService: DoctorService,
     private appointmentService: AppointmentService,
+    private timeslotService: TimeslotService,
   ) {}
 
   @Get('/')
@@ -61,9 +63,15 @@ export class DoctorController {
   @Put('/:id')
   async updateDoctor(
     @Body() updateData: UpdateDoctorDto,
-    @Param('id') id: mongoose.Types.ObjectId,
-  ): Promise<Doctor> {
-    return this.doctorService.updateDoctor(id, updateData);
+    @Param('id') doctorId: mongoose.Types.ObjectId,
+  ): Promise<any> {
+    console.log(updateData);
+
+    const { formData, timeSlots } = updateData;
+
+    await this.timeslotService.createTimeslots(doctorId, timeSlots);
+
+    return this.doctorService.updateDoctor(doctorId, formData);
   }
 
   @UseGuards(RolesGuard)
