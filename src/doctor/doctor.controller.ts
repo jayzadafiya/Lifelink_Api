@@ -10,17 +10,18 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import mongoose from 'mongoose';
 import { DoctorService } from './doctor.service';
 import { Doctor } from './schema/doctor.schema';
 import { RolesGuard } from 'shared/role/role.gurd';
 import { Roles } from 'shared/role/role.decorator';
 import { Role } from 'utils/role.enum';
-import mongoose from 'mongoose';
 import { Request } from 'express';
 import { AppointmentService } from 'src/appointment/appointment.service';
 import { Appointment } from 'src/appointment/schema/appointment.schema';
 import { UpdateDoctorDto } from './dto/updateDoctor.dto';
 import { TimeslotService } from 'src/timeslot/timeslot.service';
+import { SeparatedTimeSlots } from 'src/timeslot/timeslot.interface';
 
 @Controller('/doctors')
 export class DoctorController {
@@ -54,8 +55,10 @@ export class DoctorController {
   }
 
   @Get('/:id')
-  async getUser(@Param('id') id: mongoose.Types.ObjectId): Promise<Doctor> {
-    return this.doctorService.getDoctorById(id);
+  async getDoctorById(
+    @Param('id') id: mongoose.Types.ObjectId,
+  ): Promise<Doctor> {
+    return await this.doctorService.getDoctorById(id);
   }
 
   @UseGuards(RolesGuard)
@@ -65,8 +68,6 @@ export class DoctorController {
     @Body() updateData: UpdateDoctorDto,
     @Param('id') doctorId: mongoose.Types.ObjectId,
   ): Promise<any> {
-    console.log(updateData);
-
     const { formData, timeSlots } = updateData;
 
     await this.timeslotService.createTimeslots(doctorId, timeSlots);

@@ -11,6 +11,9 @@ export class Timeslots extends Document {
 
   @Prop({ type: [String] })
   bookingDate: string[];
+
+  @Prop({ enum: ['morning', 'afternoon', 'evening'] })
+  slotPhase: string;
 }
 
 export const TimeslotsSchema = SchemaFactory.createForClass(Timeslots);

@@ -7,6 +7,7 @@ import {
   IsNotEmpty,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { SeparatedTimeSlots } from 'src/timeslot/timeslot.interface';
 
 class TimeSlotDataDto {
   @IsNotEmpty()
@@ -117,5 +118,5 @@ export class FormDto {
 
 export class UpdateDoctorDto {
   formData: FormDto;
-  timeSlots:string[];
+  timeSlots: SeparatedTimeSlots[];
 }

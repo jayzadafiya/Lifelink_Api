@@ -1,15 +1,7 @@
-import { IsString, IsArray, IsMongoId, IsNotEmpty } from 'class-validator';
+class TimeSlotDto {
+  [key: string]: string[];
+}
 
 export class CreateTimeslotsDto {
-  @IsNotEmpty()
-  @IsString()
-  time: string;
-
-  @IsNotEmpty()
-  @IsMongoId()
-  doctor: string;
-
-  @IsArray()
-  @IsString({ each: true })
-  bookingDate: string[];
+  timeSlots: TimeSlotDto[];
 }
