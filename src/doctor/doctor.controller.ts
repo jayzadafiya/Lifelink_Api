@@ -57,8 +57,12 @@ export class DoctorController {
   @Get('/:id')
   async getDoctorById(
     @Param('id') id: mongoose.Types.ObjectId,
-  ): Promise<Doctor> {
-    return await this.doctorService.getDoctorById(id);
+  ): Promise<{ doctor: Doctor; timeslots: SeparatedTimeSlots[] }> {
+    const doctor = await this.doctorService.getDoctorById(id);
+
+    const timeslots = await this.timeslotService.getDoctorSlots(id);
+
+    return { doctor, timeslots };
   }
 
   @UseGuards(RolesGuard)
@@ -70,7 +74,9 @@ export class DoctorController {
   ): Promise<any> {
     const { formData, timeSlots } = updateData;
 
-    await this.timeslotService.createTimeslots(doctorId, timeSlots);
+    if (timeSlots) {
+      await this.timeslotService.createTimeslots(doctorId, timeSlots);
+    }
 
     return this.doctorService.updateDoctor(doctorId, formData);
   }

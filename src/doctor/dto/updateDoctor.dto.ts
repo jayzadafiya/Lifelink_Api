@@ -117,6 +117,10 @@ export class FormDto {
 }
 
 export class UpdateDoctorDto {
+  @ValidateNested({ each: true })
+  @Type(() => FormDto)
   formData: FormDto;
+
+  @IsOptional()
   timeSlots: SeparatedTimeSlots[];
 }
