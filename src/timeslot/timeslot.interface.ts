@@ -1,5 +1,5 @@
 interface SeparatedTimeSlots {
-  [key: string]: string[];
+  [key: string]: { time: string; bookingDate: string[] }[];
 }
 
 export { SeparatedTimeSlots };

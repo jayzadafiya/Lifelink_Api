@@ -50,25 +50,61 @@ export class TimeslotService {
   async getDoctorSlots(
     doctorId: mongoose.Types.ObjectId,
   ): Promise<SeparatedTimeSlots[]> {
+    // const separatedTimeslots = await this.TimeslotModel.aggregate([
+    //   { $match: { doctor: doctorId } },
+    //   {
+    //     $group: {
+    //       _id: '$slotPhase',
+    //       times: { $push: '$time' },
+    //       bookingDate: { $addToSet: '$bookingDate' },
+    //     },
+    //   },
+    //   {
+    //     $project: {
+    //       _id: 0,
+    //       slotPhase: '$_id',
+    //       times: 1,
+    //       bookingDate: 1,
+    //     },
+    //   },
+    // ]);
+
     const separatedTimeslots = await this.TimeslotModel.aggregate([
       { $match: { doctor: doctorId } },
       {
         $group: {
-          _id: '$slotPhase',
-          times: { $push: '$time' },
+          _id: {
+            slotPhase: '$slotPhase',
+            time: '$time',
+            bookingDate: '$bookingDate',
+          },
+        },
+      },
+      { $sort: { '_id.time': 1 } },
+      {
+        $group: {
+          _id: '$_id.slotPhase',
+          slots: {
+            $push: {
+              time: '$_id.time',
+              bookingDate: '$_id.bookingDate',
+            },
+          },
         },
       },
       {
         $project: {
           _id: 0,
           slotPhase: '$_id',
-          times: 1,
+          slots: 1,
         },
       },
     ]).exec();
 
     const formattedTimeslots = separatedTimeslots.map(
-      ({ slotPhase, times }) => ({ [slotPhase]: times }),
+      ({ slotPhase, slots }) => ({
+        [slotPhase]: slots,
+      }),
     );
 
     return formattedTimeslots;

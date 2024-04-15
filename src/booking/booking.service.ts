@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 
 import Stripe from 'stripe';
 import mongoose from 'mongoose';
@@ -27,8 +31,25 @@ export class BookingService {
     bookingData: BookingDto,
     req: any,
   ): Promise<void> {
+    const { time, bookingDate } = bookingData;
     const doctor = await this.doctorService.getDoctorById(doctorId);
     const user = await this.userService.getUserById(req.user.userId);
+
+    if (!doctor && !user) {
+      throw new NotFoundException('User or Doctor not Found');
+    }
+
+    const bookingDetails = this.BookingModel.findOne({
+      docter: doctor._id,
+      user: user._id,
+      bookingDate: bookingDate,
+    });
+
+    if (bookingDetails) {
+      throw new ConflictException(
+        'User already book appointment with this docter today',
+      );
+    }
 
     try {
       const session = await this.stripe.checkout.sessions.create({
@@ -59,18 +80,16 @@ export class BookingService {
         doctorId,
       );
 
-      this.timeslotService.addBookingData(
-        bookingData.bookingDate,
-        timeslot._id,
-      );
+      this.timeslotService.addBookingData(bookingDate, timeslot._id);
 
       //create new booking
       const booking = await this.BookingModel.create({
+        time,
+        bookingDate,
         doctor: doctor._id,
         user: user._id,
         fees: doctor.fees,
         session: session.id,
-        time: bookingData.time,
       });
       console.log(booking);
     } catch (error) {
