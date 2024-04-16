@@ -10,7 +10,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { ReviewModule } from './review/review.module';
 import { MongoDBIdMiddleware } from 'shared/mongodb-id.middleware';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { AppointmentModule } from './appointment/appointment.module';
 import { BookingModule } from './booking/booking.module';
 import { TimeslotModule } from './timeslot/timeslot.module';
 
@@ -35,7 +34,6 @@ import { TimeslotModule } from './timeslot/timeslot.module';
     DoctorModule,
     UserModule,
     ReviewModule,
-    AppointmentModule,
     BookingModule,
     TimeslotModule,
   ],

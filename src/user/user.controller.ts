@@ -17,9 +17,9 @@ import { Roles } from 'shared/role/role.decorator';
 import { Role } from 'utils/role.enum';
 import mongoose from 'mongoose';
 import { Request } from 'express';
-import { Doctor } from 'src/doctor/schema/doctor.schema';
 import { DoctorService } from 'src/doctor/doctor.service';
-import { AppointmentService } from 'src/appointment/appointment.service';
+import { BookingService } from 'src/booking/booking.service';
+import { Booking } from 'src/booking/schema/booking.schema';
 
 @UseGuards(RolesGuard)
 @Controller('users')
@@ -27,7 +27,7 @@ export class UserController {
   constructor(
     private userService: UserService,
     private doctorService: DoctorService,
-    private appointmentService: AppointmentService,
+    private bookingService: BookingService,
   ) {}
 
   @Roles(Role.Patient)
@@ -40,16 +40,12 @@ export class UserController {
 
   @Roles(Role.Patient)
   @Get('/my-appointments')
-  async getMyAppointment(@Req() req: Request | any): Promise<Doctor[]> {
-    const appointments = await this.appointmentService.getAppointmentUserId(
+  async getMyAppointment(@Req() req: Request | any): Promise<Booking[]> {
+    const bookingData = await this.bookingService.getAppointmentUserId(
       req.user.userId,
     );
 
-    const doctorId = appointments.map((appointment) => appointment.doctor._id);
-
-    const doctors = await this.doctorService.getDoctorFromAppointment(doctorId);
-
-    return doctors;
+    return bookingData;
   }
 
   @Roles(Role.Patient, Role.Admin)

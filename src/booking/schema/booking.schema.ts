@@ -1,13 +1,13 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 
-@Schema()
+@Schema({ timestamps: true })
 export class Booking extends Document {
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Docter', required: true })
-  doctor: mongoose.Schema.Types.ObjectId;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Doctor', required: true })
+  doctor: mongoose.Types.ObjectId;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
-  user: mongoose.Schema.Types.ObjectId;
+  user: mongoose.Types.ObjectId;
 
   @Prop({ required: true })
   fees: number;
@@ -19,7 +19,19 @@ export class Booking extends Document {
   time: string;
 
   @Prop({ required: true })
-  bookingDate:string;
+  bookingDate: string;
+
+  @Prop({ enum: ['pending', 'approved', 'cancelled'], default: 'pending' })
+  status: string;
+
+  @Prop({ default: true })
+  isPaid: boolean;
 }
 
 export const BookingSchema = SchemaFactory.createForClass(Booking);
+
+BookingSchema.pre('find', function (next) {
+  this.populate({ path: 'doctor', select: 'name email photo' });
+
+  next();
+});

@@ -17,17 +17,17 @@ import { RolesGuard } from 'shared/role/role.gurd';
 import { Roles } from 'shared/role/role.decorator';
 import { Role } from 'utils/role.enum';
 import { Request } from 'express';
-import { AppointmentService } from 'src/appointment/appointment.service';
-import { Appointment } from 'src/appointment/schema/appointment.schema';
 import { UpdateDoctorDto } from './dto/updateDoctor.dto';
 import { TimeslotService } from 'src/timeslot/timeslot.service';
 import { SeparatedTimeSlots } from 'src/timeslot/timeslot.interface';
+import { BookingService } from 'src/booking/booking.service';
+import { Booking } from 'src/booking/schema/booking.schema';
 
 @Controller('/doctors')
 export class DoctorController {
   constructor(
     private doctorService: DoctorService,
-    private appointmentService: AppointmentService,
+    private bookingService: BookingService,
     private timeslotService: TimeslotService,
   ) {}
 
@@ -40,14 +40,14 @@ export class DoctorController {
   @Get('/profile')
   async getDoctorProfile(
     @Req() req: Request | any,
-  ): Promise<{ doctorDetails: Doctor; appointments: Appointment[] }> {
+  ): Promise<{ doctorDetails: Doctor; appointments: Booking[] }> {
     const doctor = await this.doctorService.getDoctorById(req.user.userId);
 
     if (!doctor) {
       throw new NotFoundException('Doctor not found!!');
     }
 
-    const appointments = await this.appointmentService.getAppointmentUserId(
+    const appointments = await this.bookingService.getAppointmentUserId(
       doctor._id,
     );
 

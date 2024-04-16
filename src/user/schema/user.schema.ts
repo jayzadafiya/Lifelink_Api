@@ -33,8 +33,6 @@ export class User extends Document {
   @Prop()
   passwordConfirm?: string;
 
-  //   @Prop({ type: [{ type: 'mongoose.Schema.Types.ObjectId', ref: 'Appointment' }] })
-  //   appointments?: Appointment[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

@@ -26,6 +26,10 @@ export class BookingService {
     this.stripe = new Stripe(process.env.STRIPE_KEY);
   }
 
+  async getAppointmentUserId(userId: mongoose.Types.ObjectId) {
+    return this.BookingModel.find({ user: userId });
+  }
+
   async getCheckoutSession(
     doctorId: mongoose.Types.ObjectId,
     bookingData: BookingDto,
@@ -39,7 +43,7 @@ export class BookingService {
       throw new NotFoundException('User or Doctor not Found');
     }
 
-    const bookingDetails = this.BookingModel.findOne({
+    const bookingDetails = await this.BookingModel.findOne({
       docter: doctor._id,
       user: user._id,
       bookingDate: bookingDate,
