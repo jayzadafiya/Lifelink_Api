@@ -40,12 +40,13 @@ export class UserController {
 
   @Roles(Role.Patient)
   @Get('/my-appointments')
-  async getMyAppointment(@Req() req: Request | any): Promise<Booking[]> {
-    const bookingData = await this.bookingService.getAppointmentUserId(
-      req.user.userId,
+  async getMyAppointment(
+    @Req() req: Request | any,
+  ): Promise<{ upcoming: Booking[]; history: Booking[] }> {
+    return this.bookingService.getAppointment(
+      'user',
+      new mongoose.Types.ObjectId(req.user.userId),
     );
-
-    return bookingData;
   }
 
   @Roles(Role.Patient, Role.Admin)

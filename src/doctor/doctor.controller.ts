@@ -40,14 +40,18 @@ export class DoctorController {
   @Get('/profile')
   async getDoctorProfile(
     @Req() req: Request | any,
-  ): Promise<{ doctorDetails: Doctor; appointments: Booking[] }> {
+  ): Promise<{
+    doctorDetails: Doctor;
+    appointments: { upcoming: Booking[]; history: Booking[] };
+  }> {
     const doctor = await this.doctorService.getDoctorById(req.user.userId);
 
     if (!doctor) {
       throw new NotFoundException('Doctor not found!!');
     }
 
-    const appointments = await this.bookingService.getAppointmentUserId(
+    const appointments = await this.bookingService.getAppointment(
+      'doctor',
       doctor._id,
     );
 

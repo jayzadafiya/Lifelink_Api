@@ -31,7 +31,10 @@ export class Booking extends Document {
 export const BookingSchema = SchemaFactory.createForClass(Booking);
 
 BookingSchema.pre('find', function (next) {
-  this.populate({ path: 'doctor', select: 'name email photo' });
+  this.populate('user').populate({
+    path: 'doctor',
+    select: 'name email photo',
+  });
 
   next();
 });

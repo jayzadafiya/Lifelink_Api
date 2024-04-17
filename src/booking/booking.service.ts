@@ -26,8 +26,103 @@ export class BookingService {
     this.stripe = new Stripe(process.env.STRIPE_KEY);
   }
 
-  async getAppointmentUserId(userId: mongoose.Types.ObjectId) {
-    return this.BookingModel.find({ user: userId });
+  async getAppointment(
+    userType: string,
+    id: mongoose.Types.ObjectId,
+  ): Promise<{ upcoming: Booking[]; history: Booking[] }> {
+    const currentDate = new Date();
+    const currentDateString = currentDate.toISOString().split('T')[0];
+    const currentTimeString = currentDate.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+
+    return this.BookingModel.aggregate([
+      {
+        $match: {
+          [userType]: id,
+        },
+      },
+      {
+        $lookup: {
+          from: 'users', // Assuming the collection name for users is 'users'
+          localField: 'user',
+          foreignField: '_id',
+          as: 'user',
+        },
+      },
+      {
+        $unwind: '$user', // Deconstruct the user array produced by $lookup
+      },
+      {
+        $lookup: {
+          from: 'doctors', // Assuming the collection name for doctors is 'doctors'
+          let: { doctorId: '$doctor' },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ['$_id', '$$doctorId'] },
+              },
+            },
+            {
+              $project: {
+                name: 1,
+                email: 1,
+                photo: 1,
+              },
+            },
+          ],
+          as: 'doctor',
+        },
+      },
+      {
+        $unwind: '$doctor', // Deconstruct the doctor array produced by $lookup
+      },
+      {
+        $facet: {
+          upcoming: [
+            {
+              $match: {
+                $expr: {
+                  $or: [
+                    { $gt: ['$bookingDate', currentDateString] },
+                    {
+                      $and: [
+                        { $eq: ['$bookingDate', currentDateString] },
+                        { $gt: ['$time', currentTimeString] },
+                      ],
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+          history: [
+            {
+              $match: {
+                $expr: {
+                  $or: [
+                    { $lt: ['$bookingDate', currentDateString] },
+                    {
+                      $and: [
+                        { $eq: ['$bookingDate', currentDateString] },
+                        { $lte: ['$time', currentTimeString] },
+                      ],
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+        },
+      },
+    ]).then((results) => {
+      return {
+        upcoming: results[0].upcoming,
+        history: results[0].history,
+      };
+    });
   }
 
   async getCheckoutSession(
