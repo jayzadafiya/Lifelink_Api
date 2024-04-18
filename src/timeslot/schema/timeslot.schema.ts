@@ -5,8 +5,8 @@ import mongoose, { Document } from 'mongoose';
 export class Timeslots extends Document {
   @Prop({ required: true })
   time: string;
-
-  @Prop({ type: mongoose.Types.ObjectId, ref: 'Doctor', required: true })
+  
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Doctor', required: true })
   doctor: mongoose.Types.ObjectId;
 
   @Prop({ type: [String] })

@@ -64,7 +64,7 @@ export class DoctorController {
   ): Promise<{ doctor: Doctor; timeslots: SeparatedTimeSlots[] }> {
     const doctor = await this.doctorService.getDoctorById(id);
 
-    const timeslots = await this.timeslotService.getDoctorSlots(id);
+    const timeslots = await this.timeslotService.getDoctorSlots(doctor._id);
 
     return { doctor, timeslots };
   }

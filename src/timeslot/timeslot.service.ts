@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import { createOne } from 'shared/handlerFactory';
 import { SeparatedTimeSlots } from './timeslot.interface';
 import { BookingDto } from 'src/booking/dto/booking.dto';
+import { timeInterval } from 'rxjs';
 
 @Injectable()
 export class TimeslotService {
@@ -24,6 +25,8 @@ export class TimeslotService {
       slotPhase: slotPhase,
       doctor: doctorId,
     });
+
+    // console.log(time, slotPhase, timeslot);
 
     if (!timeslot) {
       throw new NotFoundException('Timeslot not found for this data');

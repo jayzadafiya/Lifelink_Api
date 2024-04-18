@@ -13,7 +13,7 @@ export class Booking extends Document {
   fees: number;
 
   @Prop({ required: true })
-  session: string;
+  sessionCustomerId: string;
 
   @Prop({ required: true })
   time: string;
