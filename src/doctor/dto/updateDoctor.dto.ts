@@ -14,40 +14,51 @@ class TimeSlotDataDto {
   @IsString()
   slot: string;
 
+  @IsNotEmpty()
   @IsNumber()
   appointments_time: number;
 
+  @IsNotEmpty()
   @IsString()
   startingTime: string;
 
+  @IsNotEmpty()
   @IsString()
   endingTime: string;
 }
 
 class ExperienceDto {
+  @IsNotEmpty()
   @IsString()
   startingDate: string;
 
+  @IsNotEmpty()
   @IsString()
   endingDate: string;
 
+  @IsNotEmpty()
   @IsString()
   position: string;
 
+  @IsNotEmpty()
   @IsString()
   place: string;
 }
 
 class QualificationDto {
+  @IsNotEmpty()
   @IsString()
   startingDate: string;
 
+  @IsNotEmpty()
   @IsString()
   endingDate: string;
 
+  @IsNotEmpty()
   @IsString()
   degree: string;
 
+  @IsNotEmpty()
   @IsString()
   university: string;
 }

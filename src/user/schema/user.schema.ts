@@ -21,7 +21,7 @@ export class User extends Document {
   @Prop()
   photo?: string;
 
-  @Prop({ enum: Role})
+  @Prop({ enum: Role })
   role?: string;
 
   @Prop({ enum: ['male', 'female', 'other'] })
@@ -32,11 +32,11 @@ export class User extends Document {
 
   @Prop()
   passwordConfirm?: string;
-
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
 
+// Pre middlaware for password encoding
 UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   this.password = await bcryptPassword(this.password);

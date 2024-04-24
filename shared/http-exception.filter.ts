@@ -6,9 +6,10 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+import Stripe from 'stripe';
 
 @Catch()
-export class HttpExceptionFilter implements ExceptionFilter {
+export class AllExceptionFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
@@ -34,6 +35,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
     } else if ((exception as any).name === 'BSONError') {
       status = HttpStatus.BAD_REQUEST;
       errorMessage = 'Invalid ID format';
+    } else if (exception instanceof TypeError) {
+      status = HttpStatus.BAD_REQUEST;
+      errorMessage = 'Type error occurred';
+    } else if (exception instanceof Stripe.errors.StripeError) {
+      status = HttpStatus.BAD_REQUEST;
+      errorMessage = 'Stripe error occurred';
     } else if (exception && typeof exception['message'] === 'string') {
       errorMessage = exception['message'];
     }

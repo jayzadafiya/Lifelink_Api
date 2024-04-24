@@ -10,11 +10,13 @@ import { Response } from 'express';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  // Endpoint for user signup
   @Post('/signup')
   async singup(@Body() createUserDto: CreateUserDto): Promise<User | Doctor> {
     return this.authService.signup(createUserDto);
   }
 
+  // Endpoint for user login
   @Post('/login')
   async login(
     @Body() loginUserDto: LoginUserDto,

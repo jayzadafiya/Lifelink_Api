@@ -30,6 +30,7 @@ export class Booking extends Document {
 
 export const BookingSchema = SchemaFactory.createForClass(Booking);
 
+// Use pre middelware for populate user and doctor
 BookingSchema.pre('find', function (next) {
   this.populate('user').populate({
     path: 'doctor',

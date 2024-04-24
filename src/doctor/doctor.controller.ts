@@ -31,16 +31,16 @@ export class DoctorController {
     private timeslotService: TimeslotService,
   ) {}
 
+  // Endpoint for get all doctors
   @Get('/')
   async getAllDoctor(@Query('query') query?: string): Promise<Doctor[]> {
     return this.doctorService.getAllDoctor(query);
   }
 
+  // Endpoint for get current doctor details and appointments
   @UseGuards(RolesGuard)
   @Get('/profile')
-  async getDoctorProfile(
-    @Req() req: Request | any,
-  ): Promise<{
+  async getDoctorProfile(@Req() req: Request | any): Promise<{
     doctorDetails: Doctor;
     appointments: { upcoming: Booking[]; history: Booking[] };
   }> {
@@ -50,6 +50,7 @@ export class DoctorController {
       throw new NotFoundException('Doctor not found!!');
     }
 
+    // Retrieve appointments for the doctor
     const appointments = await this.bookingService.getAppointment(
       'doctor',
       doctor._id,
@@ -58,17 +59,20 @@ export class DoctorController {
     return { doctorDetails: doctor, appointments: appointments };
   }
 
+  // Endpoint for get doctor details and timeslots
   @Get('/:id')
   async getDoctorById(
     @Param('id') id: mongoose.Types.ObjectId,
   ): Promise<{ doctor: Doctor; timeslots: SeparatedTimeSlots[] }> {
     const doctor = await this.doctorService.getDoctorById(id);
 
+    // Retrieve timeslots for the doctor
     const timeslots = await this.timeslotService.getDoctorSlots(doctor._id);
 
     return { doctor, timeslots };
   }
 
+  // Endpoint for update doctor
   @UseGuards(RolesGuard)
   @Roles(Role.Doctor)
   @Put('/:id')
@@ -78,6 +82,7 @@ export class DoctorController {
   ): Promise<any> {
     const { formData, timeSlots } = updateData;
 
+    // If new timeslots are provided, create them
     if (timeSlots) {
       await this.timeslotService.createTimeslots(doctorId, timeSlots);
     }
@@ -85,8 +90,9 @@ export class DoctorController {
     return this.doctorService.updateDoctor(doctorId, formData);
   }
 
+  // Endpoint for delete doctor
   @UseGuards(RolesGuard)
-  @Roles(Role.Doctor)
+  @Roles(Role.Doctor, Role.Admin)
   @Delete('/:id')
   async deleteDoctor(
     @Param('id') id: mongoose.Types.ObjectId,

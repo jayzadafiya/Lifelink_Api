@@ -9,15 +9,14 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
+import mongoose from 'mongoose';
 import { UserService } from './user.service';
 import { User } from './schema/user.schema';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { RolesGuard } from 'shared/role/role.gurd';
 import { Roles } from 'shared/role/role.decorator';
 import { Role } from 'utils/role.enum';
-import mongoose from 'mongoose';
 import { Request } from 'express';
-import { DoctorService } from 'src/doctor/doctor.service';
 import { BookingService } from 'src/booking/booking.service';
 import { Booking } from 'src/booking/schema/booking.schema';
 
@@ -26,10 +25,10 @@ import { Booking } from 'src/booking/schema/booking.schema';
 export class UserController {
   constructor(
     private userService: UserService,
-    private doctorService: DoctorService,
     private bookingService: BookingService,
   ) {}
 
+  //Endpoint for get current user profile
   @Roles(Role.Patient)
   @Get('/profile')
   async getMe(@Req() req: any): Promise<User> {
@@ -38,6 +37,7 @@ export class UserController {
     );
   }
 
+  //Endpoint for get appointments for the current user
   @Roles(Role.Patient)
   @Get('/my-appointments')
   async getMyAppointment(
@@ -49,6 +49,7 @@ export class UserController {
     );
   }
 
+  //Endpoint for get user by ID
   @Roles(Role.Patient, Role.Admin)
   @Get('/:id')
   async getUser(
@@ -64,12 +65,14 @@ export class UserController {
     return this.userService.getUserById(id);
   }
 
+  // Endpoint for get all users (only for admin)
   @Roles(Role.Admin)
   @Get('/')
   async getAllUser(): Promise<User[]> {
     return this.userService.getAllUser();
   }
 
+  // Endpoint for update user details
   @Roles(Role.Patient)
   @Put('/:id')
   async updateUser(
@@ -79,9 +82,10 @@ export class UserController {
     return this.userService.updateUser(updateData, id);
   }
 
-  @Roles(Role.Patient)
+  // Endpoint for delete user (only for admin)
+  @Roles(Role.Patient, Role.Admin)
   @Delete('/:id')
-  async dleeteUser(@Param('id') id: mongoose.Types.ObjectId): Promise<string> {
+  async deleteUser(@Param('id') id: mongoose.Types.ObjectId): Promise<string> {
     return this.userService.deleteUser(id);
   }
 }

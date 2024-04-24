@@ -1,11 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Timeslots } from './schema/timeslot.schema';
-import mongoose from 'mongoose';
 import { createOne } from 'shared/handlerFactory';
 import { SeparatedTimeSlots } from './timeslot.interface';
 import { BookingDto } from 'src/booking/dto/booking.dto';
-import { timeInterval } from 'rxjs';
 
 @Injectable()
 export class TimeslotService {
@@ -14,6 +17,7 @@ export class TimeslotService {
     private TimeslotModel: mongoose.Model<Timeslots>,
   ) {}
 
+  // Method to retrieve a timeslot by booking dat
   async getTimeslotByData(
     bookingData: BookingDto,
     doctorId: mongoose.Types.ObjectId,
@@ -26,8 +30,6 @@ export class TimeslotService {
       doctor: doctorId,
     });
 
-    // console.log(time, slotPhase, timeslot);
-
     if (!timeslot) {
       throw new NotFoundException('Timeslot not found for this data');
     }
@@ -35,6 +37,7 @@ export class TimeslotService {
     return timeslot;
   }
 
+  // Method to create timeslots for a doctor
   async createTimeslots(
     doctorId: mongoose.Types.ObjectId,
     timeslots: SeparatedTimeSlots[],
@@ -50,6 +53,7 @@ export class TimeslotService {
     }
   }
 
+  // Method to get timeslots for a doctor by doctorID
   async getDoctorSlots(
     doctorId: mongoose.Types.ObjectId,
   ): Promise<SeparatedTimeSlots[]> {
@@ -104,6 +108,11 @@ export class TimeslotService {
       },
     ]).exec();
 
+    if (!separatedTimeslots) {
+      throw new BadRequestException('SeparateTimeslot not generate');
+    }
+
+    //formate this timeslots in array of object like [{slotphase:slots}]
     const formattedTimeslots = separatedTimeslots.map(
       ({ slotPhase, slots }) => ({
         [slotPhase]: slots,
@@ -113,24 +122,34 @@ export class TimeslotService {
     return formattedTimeslots;
   }
 
+  // Method to delete timeslots for a doctor by slotPhase
   async deleteTimeslots(
     doctorId: mongoose.Types.ObjectId,
     slotPhase: string,
   ): Promise<void> {
-    await this.TimeslotModel.deleteMany({
+    const timeslot = await this.TimeslotModel.deleteMany({
       doctor: doctorId,
       slotPhase: slotPhase,
     });
+
+    if (!timeslot) {
+      throw new BadRequestException('Error while updating timeslot');
+    }
   }
 
+  // Method to add booking data to a timeslot
   async addBookingData(
     bookingDate: string,
     timeslotId: mongoose.Types.ObjectId,
   ): Promise<void> {
-    await this.TimeslotModel.findByIdAndUpdate(
+    const timeslot = await this.TimeslotModel.findByIdAndUpdate(
       timeslotId,
       { $push: { bookingDate: bookingDate } },
       { new: true },
     );
+
+    if (!timeslot) {
+      throw new BadRequestException('Error while updating timeslot');
+    }
   }
 }

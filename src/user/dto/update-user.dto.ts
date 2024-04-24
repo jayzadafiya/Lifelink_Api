@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer';
-import { IsOptional, IsString } from 'class-validator';
+import { IsEmail, IsEnum, IsOptional, IsString } from 'class-validator';
 
 export class UpdateUserDto {
   @IsOptional()
@@ -8,6 +8,7 @@ export class UpdateUserDto {
 
   @IsOptional()
   @IsString()
+  @IsEmail()
   email?: string;
 
   @IsOptional()
@@ -16,6 +17,6 @@ export class UpdateUserDto {
   bloodType?: string;
 
   @IsOptional()
-  @IsString()
+  @IsEnum(['male', 'female', 'other'])
   gender?: string;
 }

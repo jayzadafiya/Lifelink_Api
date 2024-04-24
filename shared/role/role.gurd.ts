@@ -4,11 +4,10 @@ import {
   ExecutionContext,
   UnauthorizedException,
 } from '@nestjs/common';
+import { Role } from 'utils/role.enum';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request as Req } from 'express';
-
-import { Role } from 'utils/role.enum';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -18,17 +17,20 @@ export class RolesGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    // Retrieve required roles from the decorator metadata.
     const requiredRoles = this.reflector.getAllAndOverride<Role[]>('roles', [
       context.getHandler(),
       context.getClass(),
     ]);
 
+    // Extract the JWT token from the request header.
     const request: Req = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
       throw new UnauthorizedException('you ara not logged In');
     }
     try {
+      // Verify the JWT token and extract payload.
       const payload = await this.jwtService.verifyAsync(token, {
         secret: process.env.JWT_SECRET_KEY,
       });
@@ -39,6 +41,7 @@ export class RolesGuard implements CanActivate {
         );
       }
 
+      // Get the role of the user from the payload and attach it to the request object.
       const userRole: Role = payload.role;
       request['user'] = payload;
 
@@ -59,6 +62,7 @@ export class RolesGuard implements CanActivate {
     return true;
   }
 
+  // Helper function to extract JWT token from the request header.
   private extractTokenFromHeader(request: Req): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;
