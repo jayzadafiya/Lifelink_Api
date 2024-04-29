@@ -65,8 +65,8 @@ class QualificationDto {
 
 export class FormDto {
   @IsString()
-  @IsOptional()
-  bio?: string;
+  @IsNotEmpty()
+  bio: string;
 
   @IsNotEmpty()
   @IsString()
@@ -81,12 +81,12 @@ export class FormDto {
   photo?: string;
 
   @IsString()
-  @IsOptional()
-  about?: string;
+  @IsNotEmpty()
+  about: string;
 
   @IsString()
-  @IsOptional()
-  gender?: string;
+  @IsNotEmpty()
+  gender: string;
 
   @IsOptional()
   @IsArray()
@@ -99,8 +99,8 @@ export class FormDto {
   bloodType?: string;
 
   @IsString()
-  @IsOptional()
-  address?: string;
+  @IsNotEmpty()
+  address: string;
 
   @IsOptional()
   @IsArray()
@@ -109,8 +109,8 @@ export class FormDto {
   experiences: ExperienceDto[];
 
   @IsString()
-  @IsOptional()
-  specialization?: string;
+  @IsNotEmpty()
+  specialization: string;
 
   @IsOptional()
   @IsArray()
@@ -123,8 +123,8 @@ export class FormDto {
   phone?: number;
 
   @IsNumber()
-  @IsOptional()
-  fees?: number;
+  @IsNotEmpty()
+  fees: number;
 }
 
 export class UpdateDoctorDto {
