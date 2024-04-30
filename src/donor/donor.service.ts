@@ -19,13 +19,14 @@ export class DonorService {
   // Method for get coordinates form address
   async getCoordinates(
     address: string,
+    city: string,
   ): Promise<{ latitude: number; longitude: number }> {
     try {
       const { data } = await axios.get(
         'https://nominatim.openstreetmap.org/search',
         {
           params: {
-            q: address,
+            q: `${address}, ${city}`,
             format: 'json',
           },
         },
@@ -34,12 +35,9 @@ export class DonorService {
       if (data && data.length > 0) {
         const { lat, lon } = data[0];
 
-        if (!lat || !lon) {
-          throw new NotFoundException('Please enter valid address!!');
-        }
         return { latitude: parseFloat(lat), longitude: parseFloat(lon) };
       } else {
-        return null;
+        throw new NotFoundException('Please enter valid address!!');
       }
     } catch (error) {
       throw new Error('Error fetching geocoding data: ' + error.message);

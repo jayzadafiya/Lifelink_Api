@@ -12,16 +12,27 @@ export class DonorController {
   @UseGuards(RolesGuard)
   @Put('/')
   async donorDetails(@Body() donorDetails: CreateDonorDto): Promise<Donor> {
-    const donor = await this.donorService.getDonor(donorDetails.email);
+    const { address, email, city } = donorDetails;
+    const donor = await this.donorService.getDonor(email);
 
     if (!donor) {
+      const { latitude, longitude } = await this.donorService.getCoordinates(
+        address,
+        city,
+      );
+
+      donorDetails.location = {
+        coordinates: [latitude, longitude],
+      };
+
       return await this.donorService.createDonor(donorDetails);
     }
 
     // Set coordinates base on address
-    if (donor.address !== donorDetails.address) {
+    if (donor.address !== address || donor.city !== city) {
       const { latitude, longitude } = await this.donorService.getCoordinates(
-        donorDetails.address,
+        address,
+        city,
       );
 
       donor.location.coordinates = [latitude, longitude];

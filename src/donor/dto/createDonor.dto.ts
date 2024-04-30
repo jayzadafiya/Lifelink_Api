@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import {
   IsString,
   IsNotEmpty,
@@ -6,7 +7,14 @@ import {
   IsEnum,
   Length,
   IsNumber,
+  ValidateNested,
 } from 'class-validator';
+
+export class LocationDto {
+  @IsOptional()
+  type?: string;
+  coordinates: number[];
+}
 
 export class CreateDonorDto {
   @IsNotEmpty()
@@ -66,4 +74,9 @@ export class CreateDonorDto {
   @IsOptional()
   @IsString()
   lastDonationDate?: string;
+
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => LocationDto)
+  location?: LocationDto;
 }

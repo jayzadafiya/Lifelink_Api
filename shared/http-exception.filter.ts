@@ -37,7 +37,7 @@ export class AllExceptionFilter implements ExceptionFilter {
       errorMessage = 'Invalid ID format';
     } else if (exception instanceof TypeError) {
       status = HttpStatus.BAD_REQUEST;
-      errorMessage = 'Type error occurred';
+      errorMessage = exception.message;
     } else if (exception instanceof Stripe.errors.StripeError) {
       status = HttpStatus.BAD_REQUEST;
       errorMessage = 'Stripe error occurred';
