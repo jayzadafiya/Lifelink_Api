@@ -60,6 +60,63 @@ export class DonorService {
     return await this.DonorSchema.findOne({ email });
   }
 
+  // Method for finding donors
+  async getAllDonor(latlog?: string, query?: any): Promise<Donor[]> {
+    let donorData = this.DonorSchema.find();
+
+    const reciveGroup = {
+      'O+': ['O+', 'O-'],
+      'O-': ['O-'],
+      'A+': ['O+', 'O-', 'A+', 'A-'],
+      'A-': ['O-', 'A-'],
+      'B+': ['O+', 'O-', 'B+', 'B-'],
+      'B-': ['O-', 'B-'],
+      'AB+': ['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'],
+      'AB-': ['O-', 'A-', 'B-', 'AB-'],
+    };
+
+    //value for pagination
+    const page = query.page || 1;
+    const limit = query.limit || 10;
+    const skip = (page - 1) * limit;
+
+    // For show donor who have donate blood 6 months ago
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+    if (latlog) {
+      const [lat, lng] = latlog.split(',');
+      donorData = this.DonorSchema.find({
+        location: {
+          $geoWithin: {
+            $centerSphere: [[lng, lat], 10 / 3963.2], // Assuming a default radius of 10 miles
+          },
+        },
+      });
+    }
+
+    // Get final donor data
+    const finalData = await donorData
+      .find({
+        $or: [
+          { city: query.city },
+          { bloodType: reciveGroup[query?.bloodType] },
+          {
+            lastDonationDate: {
+              $lte: sixMonthsAgo.toISOString().split('T')[0],
+            },
+          },
+          { lastDonationDate: { $exists: false } },
+        ],
+      })
+      .sort('location.coordinates')
+      .select('-__v -location')
+      .skip(skip)
+      .limit(limit);
+
+    return finalData;
+  }
+
   // Method for update donor
   async updateDonor(
     id: mongoose.Types.ObjectId,

@@ -1,4 +1,4 @@
-import { Body, Controller, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { DonorService } from './donor.service';
 import { CreateDonorDto } from './dto/createDonor.dto';
 import { Donor } from './schema/donor.schema';
@@ -22,7 +22,7 @@ export class DonorController {
       );
 
       donorDetails.location = {
-        coordinates: [latitude, longitude],
+        coordinates: [longitude, latitude],
       };
 
       return await this.donorService.createDonor(donorDetails);
@@ -35,10 +35,27 @@ export class DonorController {
         city,
       );
 
-      donor.location.coordinates = [latitude, longitude];
+      donor.location.coordinates = [longitude, latitude];
       await donor.save();
     }
 
     return await this.donorService.updateDonor(donor._id, donorDetails);
+  }
+
+  // Endpoint for get donor from query
+  @Post('/')
+  async getAllDonor(
+    @Body('latlng') latlog: string,
+    @Query() query?: any,
+  ): Promise<Donor[]> {
+    //if latlog is not present then use addres
+    if (!latlog && query.address) {
+      const { latitude, longitude } = await this.donorService.getCoordinates(
+        query.address,
+        query.city,
+      );
+      latlog = latitude + ',' + longitude;
+    }
+    return await this.donorService.getAllDonor(latlog, query);
   }
 }
