@@ -3,6 +3,7 @@ import { DonorService } from './donor.service';
 import { CreateDonorDto } from './dto/createDonor.dto';
 import { Donor } from './schema/donor.schema';
 import { RolesGuard } from 'shared/role/role.gurd';
+import { SMSDto } from './dto/sms.dto';
 
 @Controller('donor')
 export class DonorController {
@@ -57,5 +58,11 @@ export class DonorController {
       latlog = latitude + ',' + longitude;
     }
     return await this.donorService.getAllDonor(latlog, query);
+  }
+
+  // Endpoint for send message to donor
+  @Post('/sendSMS')
+  async sendSMS(@Body() smsData: SMSDto): Promise<void> {
+    await this.donorService.sendSMS(smsData);
   }
 }

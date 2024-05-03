@@ -9,12 +9,20 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Donor } from './schema/donor.schema';
 import { CreateDonorDto } from './dto/createDonor.dto';
 import { createOne, updateOne } from 'shared/handlerFactory';
+import { Twilio } from 'twilio';
+import { SMSDto } from './dto/sms.dto';
 
 @Injectable()
 export class DonorService {
+  private twilioClient: Twilio;
   constructor(
     @InjectModel(Donor.name) private DonorSchema: mongoose.Model<Donor>,
-  ) {}
+  ) {
+    const accountSid = process.env.TWILIO_ACCOUNT_SID;
+    const authToken = process.env.TWILIO_AUTH_TOKEN;
+
+    this.twilioClient = new Twilio(accountSid, authToken);
+  }
 
   // Method for get coordinates form address
   async getCoordinates(
@@ -97,10 +105,12 @@ export class DonorService {
 
     // Get final donor data
     const finalData = await donorData
+      .find(query.city ? { city: query.city } : null)
+      .find(
+        query.bloodType ? { bloodType: reciveGroup[query?.bloodType] } : null,
+      )
       .find({
         $or: [
-          { city: query.city },
-          { bloodType: reciveGroup[query?.bloodType] },
           {
             lastDonationDate: {
               $lte: sixMonthsAgo.toISOString().split('T')[0],
@@ -128,5 +138,18 @@ export class DonorService {
       throw new BadRequestException('Error while updating donor');
     }
     return donor;
+  }
+
+  // Method for send reques message to donor using twilio
+  async sendSMS(smsData: SMSDto): Promise<void> {
+    const message = `Hello, I'm ${smsData.name}, contacting you from Drop of Life.\nUrgent assistance is needed at ${smsData.address}.\nPlease come as soon as possible.\nAdditional message: ${smsData.message}.\nYou can reach me at ${smsData.phone}.\nThank you.`;
+
+    await this.twilioClient.messages
+      .create({
+        body: message,
+        from: process.env.TWILIO_SENDER_PHONE_NUMBER,
+        to: `+91${smsData.donorPhone}`,
+      })
+      .then((message) => console.log(message.sid));
   }
 }

@@ -35,7 +35,8 @@ export class CreateDonorDto {
 
   @IsNotEmpty()
   @IsNumber()
-  phone: number;
+  @Length(10)
+  phone: string;
 
   @IsNotEmpty()
   @IsString()

@@ -16,7 +16,7 @@ export class Donor extends Document {
   email: string;
 
   @Prop({ required: true })
-  phone: number;
+  phone: string;
 
   @Prop({ required: true })
   weight: string;
