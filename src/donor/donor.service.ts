@@ -132,7 +132,7 @@ export class DonorService {
     id: mongoose.Types.ObjectId,
     updateData: CreateDonorDto,
   ): Promise<Donor> {
-    const donor = updateOne(this.DonorSchema, id, updateData);
+    const donor = await updateOne(this.DonorSchema, id, updateData);
 
     if (!donor) {
       throw new BadRequestException('Error while updating donor');

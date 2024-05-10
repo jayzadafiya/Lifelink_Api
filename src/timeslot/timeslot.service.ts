@@ -7,8 +7,8 @@ import mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Timeslots } from './schema/timeslot.schema';
 import { createOne } from 'shared/handlerFactory';
-import { SeparatedTimeSlots } from './timeslot.interface';
 import { BookingDto } from 'src/booking/dto/booking.dto';
+import { TimeslotDTO } from './dto/createTimeslot.dto';
 
 @Injectable()
 export class TimeslotService {
@@ -40,7 +40,7 @@ export class TimeslotService {
   // Method to create timeslots for a doctor
   async createTimeslots(
     doctorId: mongoose.Types.ObjectId,
-    timeslots: SeparatedTimeSlots[],
+    timeslots: TimeslotDTO[],
   ): Promise<void> {
     for (const slot of timeslots) {
       const slotName = Object.keys(slot)[0];
@@ -56,7 +56,7 @@ export class TimeslotService {
   // Method to get timeslots for a doctor by doctorID
   async getDoctorSlots(
     doctorId: mongoose.Types.ObjectId,
-  ): Promise<SeparatedTimeSlots[]> {
+  ): Promise<TimeslotDTO[]> {
     // const separatedTimeslots = await this.TimeslotModel.aggregate([
     //   { $match: { doctor: doctorId } },
     //   {
@@ -77,7 +77,7 @@ export class TimeslotService {
     // ]);
 
     const separatedTimeslots = await this.TimeslotModel.aggregate([
-      { $match: { doctor: doctorId } },
+      { $match: { doctor: doctorId, isActive: true } },
       {
         $group: {
           _id: {

@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
@@ -71,10 +72,11 @@ export class AuthService {
     if (patient) user = patient;
     if (doctor) user = doctor;
 
-    if (
-      !user ||
-      !(await await bcrypt.compare(loginData.password, user.password))
-    ) {
+    if (!user) {
+      throw new NotFoundException('User does not exist!');
+    }
+
+    if (!(await await bcrypt.compare(loginData.password, user.password))) {
       throw new UnauthorizedException('Please enter valid email or password ');
     }
 

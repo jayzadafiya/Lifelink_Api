@@ -7,7 +7,7 @@ import {
   IsNotEmpty,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { SeparatedTimeSlots } from 'src/timeslot/timeslot.interface';
+import { TimeslotDTO } from 'src/timeslot/dto/createTimeslot.dto';
 
 class TimeSlotDataDto {
   @IsNotEmpty()
@@ -118,9 +118,9 @@ export class FormDto {
   @Type(() => QualificationDto)
   qualifications: QualificationDto[];
 
-  @IsNumber()
+  @IsString()
   @IsOptional()
-  phone?: number;
+  phone?: string;
 
   @IsNumber()
   @IsNotEmpty()
@@ -133,5 +133,5 @@ export class UpdateDoctorDto {
   formData: FormDto;
 
   @IsOptional()
-  timeSlots: SeparatedTimeSlots[];
+  timeSlots: TimeslotDTO[];
 }

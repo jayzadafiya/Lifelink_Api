@@ -1,13 +1,15 @@
 import {
+  BadRequestException,
   Body,
   Controller,
-  Delete,
   Get,
   NotFoundException,
   Param,
+  Patch,
   Put,
   Query,
   Req,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import mongoose from 'mongoose';
@@ -19,9 +21,9 @@ import { Role } from 'utils/role.enum';
 import { Request } from 'express';
 import { UpdateDoctorDto } from './dto/updateDoctor.dto';
 import { TimeslotService } from 'src/timeslot/timeslot.service';
-import { SeparatedTimeSlots } from 'src/timeslot/timeslot.interface';
 import { BookingService } from 'src/booking/booking.service';
 import { Booking } from 'src/booking/schema/booking.schema';
+import { TimeslotDTO } from 'src/timeslot/dto/createTimeslot.dto';
 
 @Controller('/doctors')
 export class DoctorController {
@@ -63,7 +65,7 @@ export class DoctorController {
   @Get('/:id')
   async getDoctorById(
     @Param('id') id: mongoose.Types.ObjectId,
-  ): Promise<{ doctor: Doctor; timeslots: SeparatedTimeSlots[] }> {
+  ): Promise<{ doctor: Doctor; timeslots: TimeslotDTO[] }> {
     const doctor = await this.doctorService.getDoctorById(id);
 
     // Retrieve timeslots for the doctor
@@ -77,9 +79,16 @@ export class DoctorController {
   @Roles(Role.Doctor)
   @Put('/:id')
   async updateDoctor(
+    @Req() req: any,
     @Body() updateData: UpdateDoctorDto,
     @Param('id') doctorId: mongoose.Types.ObjectId,
-  ): Promise<any> {
+  ): Promise<Doctor> {
+    if (req.user.userId !== doctorId) {
+      throw new UnauthorizedException(
+        "You don't have access to delete this user",
+      );
+    }
+
     const { formData, timeSlots } = updateData;
 
     // If new timeslots are provided, create them
@@ -93,10 +102,26 @@ export class DoctorController {
   // Endpoint for delete doctor
   @UseGuards(RolesGuard)
   @Roles(Role.Doctor, Role.Admin)
-  @Delete('/:id')
+  @Patch('/:id')
   async deleteDoctor(
+    @Req() req: any,
     @Param('id') id: mongoose.Types.ObjectId,
   ): Promise<string> {
+    if (req.user.role === 'admin') {
+      const user = await this.doctorService.getDoctorById(id);
+
+      if (user) {
+        throw new BadRequestException('Please provide valid ID');
+      }
+    }
+    if (req.user.role === Role.Doctor) {
+      if (req.user.userId !== id) {
+        throw new UnauthorizedException(
+          "You don't have access to delete this user",
+        );
+      }
+    }
+
     return this.doctorService.deleteDoctor(id);
   }
 }

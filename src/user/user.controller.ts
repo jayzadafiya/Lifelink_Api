@@ -1,9 +1,10 @@
 import {
+  BadRequestException,
   Body,
   Controller,
-  Delete,
   Get,
   Param,
+  Patch,
   Put,
   Req,
   UnauthorizedException,
@@ -43,6 +44,11 @@ export class UserController {
   async getMyAppointment(
     @Req() req: Request | any,
   ): Promise<{ upcoming: Booking[]; history: Booking[] }> {
+    const user = await this.userService.getUserById(req.user.userId);
+
+    if (!user) {
+      throw new BadRequestException('User Dose not Exists');
+    }
     return this.bookingService.getAppointment(
       'user',
       new mongoose.Types.ObjectId(req.user.userId),
@@ -76,16 +82,41 @@ export class UserController {
   @Roles(Role.Patient)
   @Put('/:id')
   async updateUser(
+    @Req() req: any,
     @Body() updateData: UpdateUserDto,
     @Param('id') id: mongoose.Types.ObjectId,
   ): Promise<User> {
+    if (req.user.userId !== id) {
+      throw new UnauthorizedException(
+        "You don't have access to delete this user",
+      );
+    }
+
     return this.userService.updateUser(updateData, id);
   }
 
   // Endpoint for delete user (only for admin)
   @Roles(Role.Patient, Role.Admin)
-  @Delete('/:id')
-  async deleteUser(@Param('id') id: mongoose.Types.ObjectId): Promise<string> {
+  @Patch('/:id')
+  async deleteUser(
+    @Req() req: any,
+    @Param('id') id: mongoose.Types.ObjectId,
+  ): Promise<string> {
+    if (req.user.role === 'admin') {
+      const user = await this.userService.getUserById(id);
+
+      if (user) {
+        throw new BadRequestException('Please provide valid ID');
+      }
+    }
+
+    if (req.user.role === 'owner') {
+      if (req.user.userId !== id) {
+        throw new UnauthorizedException(
+          "You don't have access to delete this user",
+        );
+      }
+    }
     return this.userService.deleteUser(id);
   }
 }

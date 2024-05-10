@@ -44,9 +44,8 @@ import { DonorModule } from './donor/donor.module';
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(MongoDBIdMiddleware).forRoutes(
-      // { path: '/doctors/:doctorId/*', method: RequestMethod.ALL },
-      { path: '*/:id/*/*', method: RequestMethod.ALL },
-    );
+    consumer
+      .apply(MongoDBIdMiddleware)
+      .forRoutes({ path: '*/:id/*', method: RequestMethod.ALL });
   }
 }

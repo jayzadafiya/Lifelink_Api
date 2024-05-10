@@ -16,7 +16,7 @@ export class User extends Document {
   name: string;
 
   @Prop()
-  phone?: number;
+  phone?: string;
 
   @Prop()
   photo?: string;
@@ -32,6 +32,9 @@ export class User extends Document {
 
   @Prop()
   passwordConfirm?: string;
+
+  @Prop({default:true})
+  isActive:boolean
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

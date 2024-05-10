@@ -24,11 +24,10 @@ export class DoctorService {
 
   // Method for get doctor by Emial
   async getDoctor(email: string, selectString?: string): Promise<Doctor> {
-    const doctor = await this.DoctorModel.findOne({ email }).select(
-      selectString,
-    );
-
-   
+    const doctor = await this.DoctorModel.findOne({
+      email,
+      isActive: true,
+    }).select(selectString);
 
     return doctor;
   }
@@ -51,6 +50,7 @@ export class DoctorService {
     // If query is provided, search by name or specialization
     if (query && Object.keys(query).length > 0) {
       doctors = await this.DoctorModel.find({
+        isActive: true,
         isApproved: 'approved',
         $or: [
           { name: { $regex: query, $options: 'i' } },
@@ -59,7 +59,10 @@ export class DoctorService {
       });
     } else {
       // If no query, get all approved doctors
-      doctors = await getAll(this.DoctorModel, { isApproved: 'approved' });
+      doctors = await getAll(this.DoctorModel, {
+        isApproved: 'approved',
+        isActive: true,
+      });
     }
 
     if (!doctors && Doctor.length === 0) {
@@ -85,12 +88,20 @@ export class DoctorService {
     id: mongoose.Types.ObjectId,
     updateData: FormDto,
   ): Promise<Doctor> {
-    const doctor = updateOne(this.DoctorModel, id, updateData);
-
+    const doctor = await updateOne(this.DoctorModel, id, updateData);
     if (!doctor) {
-      throw new BadRequestException('Error while updating doctor');
+      throw new BadRequestException('Doctor dose not exist');
     }
     return doctor;
+  }
+
+  async updateDoctorOne(id: mongoose.Types.ObjectId) {
+    const doctor = await this.DoctorModel.findOneAndUpdate(
+      { _id: id, isActive: true },
+      { isActive: false },
+      { new: true },
+    );
+    console.log(doctor);
   }
 
   // Method for delete doctor

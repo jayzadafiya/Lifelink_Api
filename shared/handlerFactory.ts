@@ -28,18 +28,22 @@ export const createOne = async <T>(
 };
 
 // Function to update a document by its ID
-export const updateOne = async <T>(
-  model: Model<T>,
+export const updateOne = async (
+  model: any,
   id: mongoose.Types.ObjectId,
   updateData: any,
-): Promise<T | null> => {
+): Promise<any> => {
   const keys: string[] = Object.keys(updateData);
 
   // Check if the update data contains sensitive fields like password
   if (keys.includes('password') || keys.includes('passwordConfirm')) {
     throw new BadRequestException('You can not directly change password ');
   }
-  return model.findByIdAndUpdate(id, { $set: updateData }, { new: true });
+  return await model.findOneAndUpdate(
+    { _id: id, isActive: true },
+    { $set: updateData },
+    { new: true },
+  );
 };
 
 // Function to delete a document by its ID
@@ -47,7 +51,11 @@ export const deleteOne = async <T>(
   model: Model<T>,
   id: mongoose.Types.ObjectId,
 ): Promise<string | null> => {
-  const deletedUser = await model.findByIdAndDelete(id);
+  const deletedUser = await model.findByIdAndUpdate(
+    id,
+    { isActive: false },
+    { new: true },
+  );
 
   if (!deletedUser)
     throw new BadRequestException(

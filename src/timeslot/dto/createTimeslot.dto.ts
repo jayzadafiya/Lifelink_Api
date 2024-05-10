@@ -1,7 +1,8 @@
-class TimeSlotDto {
-  [key: string]: string[];
+class SlotData {
+  time: string;
+  bookingDate: string;
 }
 
-export class CreateTimeslotsDto {
-  timeSlots: TimeSlotDto[];
+export class TimeslotDTO {
+  [key: string]: SlotData[];
 }

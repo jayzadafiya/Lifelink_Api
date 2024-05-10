@@ -19,10 +19,13 @@ export class Doctor extends Document {
   name: string;
 
   @Prop()
-  phone?: number;
+  phone?: string;
 
   @Prop()
   photo?: string;
+
+  @Prop({ enum: ['male', 'female', 'other'] })
+  gender?: string;
 
   @Prop()
   ticketPrice?: number;
@@ -77,14 +80,14 @@ export class Doctor extends Document {
 
   @Prop([
     {
-      slot:String,
+      slot: String,
       appointments_time: Number,
       startingTime: String,
       endingTime: String,
     },
   ])
   timeSlots_data?: {
-    slot:string,
+    slot: string;
     appointments_time: number;
     startingTime: string;
     endingTime: string;
@@ -101,6 +104,9 @@ export class Doctor extends Document {
 
   @Prop({ enum: ['pending', 'approved', 'cancelled'], default: 'pending' })
   isApproved?: string;
+
+  @Prop({ default: true })
+  isActive: boolean;
 }
 
 export const DoctorSchema = SchemaFactory.createForClass(Doctor);

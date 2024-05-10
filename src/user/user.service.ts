@@ -24,7 +24,9 @@ export class UserService {
 
   // Method for get user by Email and return specific data
   async getUser(email: string, selectString?: string): Promise<User> {
-    const user = await this.UserModel.findOne({ email }).select(selectString);
+    const user = await this.UserModel.findOne({ email, isActive: true }).select(
+      selectString,
+    );
 
     return user;
   }
