@@ -15,7 +15,7 @@ import { Response } from 'express';
 import { Roles } from 'shared/role/role.decorator';
 import { Role } from 'utils/role.enum';
 
-@Controller('/booking')
+@Controller()
 export class BookingController {
   constructor(private bookingService: BookingService) {}
 

@@ -77,7 +77,7 @@ export class TimeslotService {
     // ]);
 
     const separatedTimeslots = await this.TimeslotModel.aggregate([
-      { $match: { doctor: doctorId, isActive: true } },
+      { $match: { doctor: doctorId } },
       {
         $group: {
           _id: {

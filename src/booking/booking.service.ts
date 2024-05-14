@@ -12,6 +12,7 @@ import { UserService } from 'src/user/user.service';
 import { TimeslotService } from 'src/timeslot/timeslot.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Booking } from './schema/booking.schema';
+import { getOne } from 'shared/handlerFactory';
 
 @Injectable()
 export class BookingService {
@@ -278,5 +279,16 @@ export class BookingService {
     }
 
     res.status(200).json({ received: true });
+  }
+
+  // Method for finding booking data by id 
+  async getBookingById(id: mongoose.Types.ObjectId): Promise<Booking> {
+    const booking = await getOne(this.BookingModel, id);
+
+    if (!booking) {
+      throw new NotFoundException('Booking data not found for this id');
+    }
+
+    return booking;
   }
 }

@@ -13,6 +13,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { BookingModule } from './booking/booking.module';
 import { TimeslotModule } from './timeslot/timeslot.module';
 import { DonorModule } from './donor/donor.module';
+import { PrescriptionModule } from './prescription/prescription.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { DonorModule } from './donor/donor.module';
     BookingModule,
     TimeslotModule,
     DonorModule,
+    PrescriptionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
