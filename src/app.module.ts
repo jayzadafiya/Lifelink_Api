@@ -14,6 +14,7 @@ import { BookingModule } from './booking/booking.module';
 import { TimeslotModule } from './timeslot/timeslot.module';
 import { DonorModule } from './donor/donor.module';
 import { PrescriptionModule } from './prescription/prescription.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { PrescriptionModule } from './prescription/prescription.module';
     TimeslotModule,
     DonorModule,
     PrescriptionModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],

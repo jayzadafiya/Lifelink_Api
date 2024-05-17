@@ -47,12 +47,12 @@ export const updateOne = async (
 };
 
 // Function to delete a document by its ID
-export const deleteOne = async <T>(
-  model: Model<T>,
+export const deleteOne = async (
+  model: any,
   id: mongoose.Types.ObjectId,
 ): Promise<string | null> => {
-  const deletedUser = await model.findByIdAndUpdate(
-    id,
+  const deletedUser = await model.findOneAndUpdate(
+    { _id: id, isActive: true },
     { isActive: false },
     { new: true },
   );

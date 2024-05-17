@@ -5,11 +5,13 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { DoctorSchema } from './schema/doctor.schema';
 import { TimeslotModule } from 'src/timeslot/timeslot.module';
 import { BookingModule } from 'src/booking/booking.module';
+import { AdminModule } from 'src/admin/admin.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: 'Doctor', schema: DoctorSchema }]),
     forwardRef(() => BookingModule),
+    forwardRef(() => AdminModule),
     TimeslotModule,
   ],
   controllers: [DoctorController],

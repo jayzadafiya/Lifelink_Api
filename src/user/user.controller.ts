@@ -101,7 +101,7 @@ export class UserController {
   async deleteUser(
     @Req() req: any,
     @Param('id') id: mongoose.Types.ObjectId,
-  ): Promise<string> {
+  ): Promise<void> {
     if (req.user.role === 'admin') {
       const user = await this.userService.getUserById(id);
 
@@ -117,6 +117,6 @@ export class UserController {
         );
       }
     }
-    return this.userService.deleteUser(id);
+    await this.userService.deleteUser(id);
   }
 }

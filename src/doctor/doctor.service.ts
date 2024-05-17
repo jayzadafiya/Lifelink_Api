@@ -90,23 +90,14 @@ export class DoctorService {
   ): Promise<Doctor> {
     const doctor = await updateOne(this.DoctorModel, id, updateData);
     if (!doctor) {
-      throw new BadRequestException('Doctor dose not exist');
+      throw new BadRequestException('Error while updating doctor');
     }
     return doctor;
   }
 
-  async updateDoctorOne(id: mongoose.Types.ObjectId) {
-    const doctor = await this.DoctorModel.findOneAndUpdate(
-      { _id: id, isActive: true },
-      { isActive: false },
-      { new: true },
-    );
-    console.log(doctor);
-  }
-
-  // Method for delete doctor
-  async deleteDoctor(id: mongoose.Types.ObjectId): Promise<string> {
-    return deleteOne(this.DoctorModel, id);
+  // Method for soft delete doctor
+  async deleteDoctor(id: mongoose.Types.ObjectId): Promise<void> {
+    await deleteOne(this.DoctorModel, id);
   }
 
   // Method for update doctor review
@@ -132,9 +123,20 @@ export class DoctorService {
   ) {
     await this.DoctorModel.findByIdAndUpdate(
       doctorId,
-      { totalRating: totalRating, averageRating: averageRating },
-
+      { $set: { totalRating: totalRating, averageRating: averageRating } },
       { new: true },
     );
+  }
+
+  // Method for add message to doctor
+  async addMessage(
+    doctorId: mongoose.Types.ObjectId,
+    updateData: { message?: string; isApproved?: string },
+  ) {
+    const doctor = await updateOne(this.DoctorModel, doctorId, updateData);
+    if (!doctor) {
+      throw new BadRequestException('Error while updating doctor');
+    }
+    return doctor;
   }
 }

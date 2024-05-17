@@ -75,12 +75,11 @@ export class UserService {
   }
 
   // Method for delete user by ID
-  async deleteUser(id: mongoose.Types.ObjectId): Promise<string> {
+  async deleteUser(id: mongoose.Types.ObjectId): Promise<void> {
     const deletedUser = await deleteOne(this.UserModel, id);
 
     if (!deletedUser) {
       throw new NotFoundException('User not found.');
     }
-    return 'User deleted successfully.';
   }
 }

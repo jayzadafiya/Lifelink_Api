@@ -13,12 +13,14 @@ import { Doctor } from 'src/doctor/schema/doctor.schema';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
 import { LoginUserDto } from './dto/login.dto';
+import { AdminService } from 'src/admin/admin.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UserService,
     private doctorService: DoctorService,
+    private adminService: AdminService,
     private jwtService: JwtService,
   ) {}
 
@@ -66,9 +68,11 @@ export class AuthService {
     let user = null;
 
     // Retrieve user information (patient or doctor) based on email
+    const admin = await this.adminService.getAdmin(email, '+password');
     const patient = await this.userService.getUser(email, '+password');
     const doctor = await this.doctorService.getDoctor(email, '+password');
 
+    if (admin) user = admin;
     if (patient) user = patient;
     if (doctor) user = doctor;
 

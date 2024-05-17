@@ -24,6 +24,7 @@ import { TimeslotService } from 'src/timeslot/timeslot.service';
 import { BookingService } from 'src/booking/booking.service';
 import { Booking } from 'src/booking/schema/booking.schema';
 import { TimeslotDTO } from 'src/timeslot/dto/createTimeslot.dto';
+import { AdminService } from 'src/admin/admin.service';
 
 @Controller('/doctors')
 export class DoctorController {
@@ -31,6 +32,7 @@ export class DoctorController {
     private doctorService: DoctorService,
     private bookingService: BookingService,
     private timeslotService: TimeslotService,
+    private adminService: AdminService,
   ) {}
 
   // Endpoint for get all doctors
@@ -85,7 +87,7 @@ export class DoctorController {
   ): Promise<Doctor> {
     if (req.user.userId !== doctorId) {
       throw new UnauthorizedException(
-        "You don't have access to delete this user",
+        "You don't have access to update this user",
       );
     }
 
@@ -96,7 +98,16 @@ export class DoctorController {
       await this.timeslotService.createTimeslots(doctorId, timeSlots);
     }
 
-    return this.doctorService.updateDoctor(doctorId, formData);
+    const updateDoctor = await this.doctorService.updateDoctor(
+      doctorId,
+      formData,
+    );
+
+    if (updateDoctor) {
+      await this.adminService.addDoctorRequest(updateDoctor._id);
+    }
+
+    return updateDoctor;
   }
 
   // Endpoint for delete doctor
@@ -106,7 +117,7 @@ export class DoctorController {
   async deleteDoctor(
     @Req() req: any,
     @Param('id') id: mongoose.Types.ObjectId,
-  ): Promise<string> {
+  ): Promise<void> {
     if (req.user.role === 'admin') {
       const user = await this.doctorService.getDoctorById(id);
 
@@ -122,6 +133,6 @@ export class DoctorController {
       }
     }
 
-    return this.doctorService.deleteDoctor(id);
+    await this.doctorService.deleteDoctor(id);
   }
 }

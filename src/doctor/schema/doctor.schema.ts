@@ -107,6 +107,9 @@ export class Doctor extends Document {
 
   @Prop({ default: true })
   isActive: boolean;
+
+  @Prop()
+  message?:string;
 }
 
 export const DoctorSchema = SchemaFactory.createForClass(Doctor);
