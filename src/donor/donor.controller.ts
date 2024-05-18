@@ -1,4 +1,12 @@
-import { Body, Controller, Post, Put, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { DonorService } from './donor.service';
 import { CreateDonorDto } from './dto/createDonor.dto';
 import { Donor } from './schema/donor.schema';
@@ -44,20 +52,20 @@ export class DonorController {
   }
 
   // Endpoint for get donor from query
-  @Post('/')
+  @Get('/')
   async getAllDonor(
-    @Body('latlng') latlog: string,
+    // @Body('latlng') latlog: string,
     @Query() query?: any,
   ): Promise<Donor[]> {
     //if latlog is not present then use addres
-    if (!latlog && query.address) {
+    if (!query.latlog && query.address) {
       const { latitude, longitude } = await this.donorService.getCoordinates(
         query.address,
         query.city,
       );
-      latlog = latitude + ',' + longitude;
+      query.latlog = latitude + ',' + longitude;
     }
-    return await this.donorService.getAllDonor(latlog, query);
+    return await this.donorService.getAllDonor(query.latlog, query);
   }
 
   // Endpoint for send message to donor

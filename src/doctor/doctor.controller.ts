@@ -37,7 +37,7 @@ export class DoctorController {
 
   // Endpoint for get all doctors
   @Get('/')
-  async getAllDoctor(@Query('query') query?: string): Promise<Doctor[]> {
+  async getAllDoctor(@Query() query?: any): Promise<Doctor[]> {
     return this.doctorService.getAllDoctor(query);
   }
 

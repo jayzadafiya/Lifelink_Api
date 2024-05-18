@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -25,11 +26,12 @@ export class AdminController {
     private doctorService: DoctorService,
   ) {}
 
+  // Endpoint for get admin profile and doctor from query
   @UseGuards(RolesGuard)
   @Roles(Role.Admin)
   @Get('/profile')
-  async getAdmin(@Req() req: any): Promise<Admin> {
-    const admin = await this.adminService.getAdminById(req.user.userId);
+  async getAdmin(@Req() req: any, @Query() query?: any): Promise<Admin> {
+    const admin = await this.adminService.getAdminById(req.user.userId, query);
 
     if (!admin) {
       throw new NotFoundException('Admin not found!!');
@@ -38,14 +40,17 @@ export class AdminController {
     return admin;
   }
 
+  // Endpoint for create admin
   @Post('/')
   async createAdmin(@Body() adminData: CreateAdminDto): Promise<Admin> {
     return await this.adminService.createAdmin(adminData);
   }
+
+  // Endpoint for accept or reject doctor request
   @UseGuards(RolesGuard)
   @Roles(Role.Admin)
   @Patch('/:id')
-  async accept(
+  async doctorQuery(
     @Param('id') doctorId: mongoose.Types.ObjectId,
     @Body('message') message: string,
     @Req() req: any,

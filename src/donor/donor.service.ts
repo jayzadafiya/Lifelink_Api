@@ -63,7 +63,7 @@ export class DonorService {
     return donor;
   }
 
-  // Method for find donr by email
+  // Method for find donor by email
   async getDonor(email: string): Promise<Donor> {
     return await this.DonorSchema.findOne({ email });
   }
@@ -85,7 +85,7 @@ export class DonorService {
 
     //value for pagination
     const page = query.page || 1;
-    const limit = query.limit || 10;
+    const limit = query.limit || 8;
     const skip = (page - 1) * limit;
 
     // For show donor who have donate blood 6 months ago

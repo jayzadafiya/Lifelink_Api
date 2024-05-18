@@ -15,6 +15,7 @@ export class AdminService {
     @InjectModel(Admin.name) private adminModel: mongoose.Model<Admin>,
   ) {}
 
+  // Method for creating admin
   async createAdmin(adminData: CreateAdminDto) {
     const admin = await createOne(this.adminModel, adminData);
 
@@ -25,14 +26,31 @@ export class AdminService {
     return admin;
   }
 
+  // Method for get admin by email
   async getAdmin(email: string, selectString?: string): Promise<Admin> {
     return await this.adminModel.findOne({ email }).select(selectString);
   }
 
-  async getAdminById(id: mongoose.Types.ObjectId): Promise<Admin> {
-    return this.adminModel.findById(id).populate('doctors');
+  // Method for get admin by Id and docor base on pagination
+  async getAdminById(id: mongoose.Types.ObjectId, query: any): Promise<Admin> {
+    // return this.adminModel.findById(id).populate('doctors');
+    const page = +query.page || 1;
+    const limit = +query.limit || 1;
+    const skip = (page - 1) * limit;
+
+    return this.adminModel
+      .findById(id)
+      .populate({
+        path: 'doctors',
+        options: {
+          limit: limit,
+          skip: skip,
+        },
+      })
+      .exec();
   }
 
+  // Method for add doctor to request list
   async addDoctorRequest(doctorId: mongoose.Types.ObjectId): Promise<void> {
     await this.adminModel.findOneAndUpdate(
       { role: 'admin' },
@@ -41,6 +59,7 @@ export class AdminService {
     );
   }
 
+  // Method for remove doctor from request list
   async removeDoctorId(
     adminId: mongoose.Types.ObjectId,
     doctorId: mongoose.Types.ObjectId,

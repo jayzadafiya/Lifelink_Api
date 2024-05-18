@@ -6,7 +6,6 @@ import {
 import {
   createOne,
   deleteOne,
-  getAll,
   getOne,
   updateOne,
 } from 'shared/handlerFactory';
@@ -44,25 +43,33 @@ export class DoctorService {
   }
 
   // Method for get all doctors
-  async getAllDoctor(query?: string): Promise<Doctor[]> {
+  async getAllDoctor(query?: any): Promise<Doctor[]> {
     let doctors;
 
+    const page = +query.page || 1;
+    const limit = +query.limit || 1;
+    const skip = (page - 1) * limit;
+    
     // If query is provided, search by name or specialization
-    if (query && Object.keys(query).length > 0) {
+    if (query && Object.keys(query).length > 0 && query.search) {
       doctors = await this.DoctorModel.find({
         isActive: true,
         isApproved: 'approved',
         $or: [
-          { name: { $regex: query, $options: 'i' } },
-          { specialization: { $regex: query, $options: 'i' } },
+          { name: { $regex: query.search, $options: 'i' } },
+          { specialization: { $regex: query.search, $options: 'i' } },
         ],
-      });
+      })
+        .skip(skip)
+        .limit(limit);
     } else {
       // If no query, get all approved doctors
-      doctors = await getAll(this.DoctorModel, {
+      doctors = await this.DoctorModel.find({
         isApproved: 'approved',
         isActive: true,
-      });
+      })
+        .skip(skip)
+        .limit(limit);
     }
 
     if (!doctors && Doctor.length === 0) {
