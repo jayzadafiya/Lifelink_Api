@@ -16,6 +16,7 @@ import { DonorModule } from './donor/donor.module';
 import { PrescriptionModule } from './prescription/prescription.module';
 import { AdminModule } from './admin/admin.module';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { TaskServiceModule } from './task-service/task-service.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
         },
       },
     }),
+
     AuthModule,
     DoctorModule,
     UserModule,
@@ -55,6 +57,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
     DonorModule,
     PrescriptionModule,
     AdminModule,
+    TaskServiceModule,
   ],
   controllers: [AppController],
   providers: [AppService],

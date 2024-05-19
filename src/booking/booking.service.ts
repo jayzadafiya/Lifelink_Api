@@ -281,7 +281,7 @@ export class BookingService {
     res.status(200).json({ received: true });
   }
 
-  // Method for finding booking data by id 
+  // Method for finding booking data by id
   async getBookingById(id: mongoose.Types.ObjectId): Promise<Booking> {
     const booking = await getOne(this.BookingModel, id);
 
@@ -290,5 +290,11 @@ export class BookingService {
     }
 
     return booking;
+  }
+
+  async getAllAppointment(startDate: string, endDate: string): Promise<Booking[]> {
+    return await this.BookingModel.find({
+      bookingDate: { $gte: startDate, $lte: endDate },
+    });
   }
 }
