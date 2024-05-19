@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
+import { Doctor } from 'src/doctor/schema/doctor.schema';
 
 @Schema({ timestamps: true })
 export class Booking extends Document {
@@ -37,5 +38,12 @@ BookingSchema.pre('find', function (next) {
     select: 'name email photo',
   });
 
+  next();
+});
+
+BookingSchema.post('save', async function (doc, next) {
+  const DoctorModel = new mongoose.Model(Doctor);
+  const totalPatients = await DoctorModel.calculateTotalPatients(doc.doctor);
+  await DoctorModel.findByIdAndUpdate(doc.doctor, { totalPatients });
   next();
 });

@@ -104,6 +104,9 @@ export class Doctor extends Document {
   @Prop({ default: 0 })
   totalRating?: number;
 
+  @Prop({ default: 0 })
+  totalPatients: number;
+
   @Prop({ enum: ['pending', 'approved', 'cancelled'], default: 'pending' })
   isApproved?: string;
 
@@ -115,10 +118,27 @@ export class Doctor extends Document {
 
   @Prop()
   passwordChangedAt: Date;
+
   @Prop()
   passwordResetToken: string;
+
   @Prop()
   passwordResetExpires: Date;
+
+  // Method to calculate total patients
+  static async calculateTotalPatients(
+    doctorId: mongoose.Types.ObjectId,
+  ): Promise<number> {
+    const bookings = await mongoose
+      .model('Booking')
+      .aggregate([
+        { $match: { doctor: doctorId } },
+        { $group: { _id: '$user' } },
+        { $count: 'totalPatients' },
+      ]);
+
+    return bookings.length > 0 ? bookings[0].totalPatients : 0;
+  }
 }
 
 export const DoctorSchema = SchemaFactory.createForClass(Doctor);
