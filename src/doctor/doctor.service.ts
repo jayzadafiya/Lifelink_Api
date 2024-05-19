@@ -146,4 +146,12 @@ export class DoctorService {
     }
     return doctor;
   }
+
+  // Method for find doctor base on reset token
+  async getDoctorByToken(token: string): Promise<Doctor> {
+    return await this.DoctorModel.findOne({
+      passwordResetToken: token,
+      passwordResetExpires: { $gt: Date.now() },
+    });
+  }
 }

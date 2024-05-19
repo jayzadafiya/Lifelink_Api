@@ -1,3 +1,5 @@
+import * as bcrypt from 'bcryptjs';
+import * as crypto from 'crypto';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { Document } from 'mongoose';
@@ -109,7 +111,14 @@ export class Doctor extends Document {
   isActive: boolean;
 
   @Prop()
-  message?:string;
+  message?: string;
+
+  @Prop()
+  passwordChangedAt: Date;
+  @Prop()
+  passwordResetToken: string;
+  @Prop()
+  passwordResetExpires: Date;
 }
 
 export const DoctorSchema = SchemaFactory.createForClass(Doctor);
@@ -121,6 +130,25 @@ DoctorSchema.pre('save', async function (next) {
   this.passwordConfirm = undefined;
   next();
 });
+
+DoctorSchema.methods.correctPassword = async function (
+  candidatePassword: string,
+  userPassword: string,
+) {
+  return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+DoctorSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+
+  return resetToken;
+};
 
 // DoctorSchema.post('save', async function (doc) {
 //   const doctorId = doc._id;

@@ -82,4 +82,12 @@ export class UserService {
       throw new NotFoundException('User not found.');
     }
   }
+
+  // Method for find user base on reset token
+  async getUserByToken(token: string): Promise<User> {
+    return await this.UserModel.findOne({
+      passwordResetToken: token,
+      passwordResetExpires: { $gt: Date.now() },
+    });
+  }
 }

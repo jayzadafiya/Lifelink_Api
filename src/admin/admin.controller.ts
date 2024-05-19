@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import {
   Body,
   Controller,
@@ -16,14 +17,15 @@ import { RolesGuard } from 'shared/role/role.gurd';
 import { Roles } from 'shared/role/role.decorator';
 import { Role } from 'utils/role.enum';
 import { Admin } from './schema/admin.schema';
-import mongoose from 'mongoose';
 import { DoctorService } from 'src/doctor/doctor.service';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Controller('admin')
 export class AdminController {
   constructor(
     private adminService: AdminService,
     private doctorService: DoctorService,
+    private mailService: MailerService,
   ) {}
 
   // Endpoint for get admin profile and doctor from query
@@ -70,6 +72,14 @@ export class AdminController {
     } else {
       await this.doctorService.addMessage(doctorId, { isApproved: 'approved' });
     }
+
+    this.mailService.sendMail({
+      from: process.env.EMAIL_FROM,
+      to: doctor.email,
+      subject: 'Life Link Application Status',
+      text: `Your application has been ${message ? `rejected due to: ${message}` : 'approved'}.`,
+    });
+
     return await this.adminService.removeDoctorId(req.user.userId, doctorId);
   }
 }

@@ -15,6 +15,7 @@ import { TimeslotModule } from './timeslot/timeslot.module';
 import { DonorModule } from './donor/donor.module';
 import { PrescriptionModule } from './prescription/prescription.module';
 import { AdminModule } from './admin/admin.module';
+import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
   imports: [
@@ -33,6 +34,18 @@ import { AdminModule } from './admin/admin.module';
         limit: parseInt(process.env.LIMIT),
       },
     ]),
+    MailerModule.forRoot({
+      transport: {
+        service: 'gmail',
+        host: process.env.EMAIL_HOST,
+        port: +process.env.EMAIL_PORT,
+        secure: false,
+        auth: {
+          user: process.env.EMAIL_USERNAME,
+          pass: process.env.EMAIL_PASSWORD,
+        },
+      },
+    }),
     AuthModule,
     DoctorModule,
     UserModule,

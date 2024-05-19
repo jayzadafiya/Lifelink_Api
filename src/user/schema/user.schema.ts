@@ -1,6 +1,7 @@
+import * as bcrypt from 'bcryptjs';
+import * as crypto from 'crypto';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-// import { Appointment } from './Appointment';
 import { bcryptPassword } from '../../../utils/helperFunction';
 import { Role } from 'utils/role.enum';
 
@@ -33,8 +34,17 @@ export class User extends Document {
   @Prop()
   passwordConfirm?: string;
 
-  @Prop({default:true})
-  isActive:boolean
+  @Prop({ default: true })
+  isActive: boolean;
+
+  @Prop()
+  passwordChangedAt: Date;
+
+  @Prop()
+  passwordResetToken: string;
+
+  @Prop()
+  passwordResetExpires: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
@@ -47,3 +57,22 @@ UserSchema.pre('save', async function (next) {
   this.passwordConfirm = undefined;
   next();
 });
+
+UserSchema.methods.correctPassword = async function (
+  candidatePassword: string,
+  userPassword: string,
+) {
+  return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+UserSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+
+  return resetToken;
+};
