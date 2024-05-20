@@ -19,7 +19,7 @@ export class Donor extends Document {
   phone: string;
 
   @Prop({ required: true })
-  weight: string;
+  weight: number;
 
   @Prop({ required: true })
   gender: string;

@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
-import { Doctor } from 'src/doctor/schema/doctor.schema';
 
 @Schema({ timestamps: true })
 export class Booking extends Document {
@@ -22,7 +21,7 @@ export class Booking extends Document {
   @Prop({ required: true })
   bookingDate: string;
 
-  @Prop({ enum: ['pending', 'approved', 'cancelled'], default: 'pending' })
+  @Prop({ enum: ['pending', 'complate', 'cancelled'], default: 'pending' })
   status: string;
 
   @Prop({ default: true })
@@ -38,12 +37,5 @@ BookingSchema.pre('find', function (next) {
     select: 'name email photo',
   });
 
-  next();
-});
-
-BookingSchema.post('save', async function (doc, next) {
-  const DoctorModel = new mongoose.Model(Doctor);
-  const totalPatients = await DoctorModel.calculateTotalPatients(doc.doctor);
-  await DoctorModel.findByIdAndUpdate(doc.doctor, { totalPatients });
   next();
 });

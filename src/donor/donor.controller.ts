@@ -5,6 +5,7 @@ import {
   Post,
   Put,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { DonorService } from './donor.service';
@@ -12,6 +13,8 @@ import { CreateDonorDto } from './dto/createDonor.dto';
 import { Donor } from './schema/donor.schema';
 import { RolesGuard } from 'shared/role/role.gurd';
 import { SMSDto } from './dto/sms.dto';
+import { Roles } from 'shared/role/role.decorator';
+import { Role } from 'utils/role.enum';
 
 @Controller('donor')
 export class DonorController {
@@ -72,5 +75,13 @@ export class DonorController {
   @Post('/sendSMS')
   async sendSMS(@Body() smsData: SMSDto): Promise<void> {
     await this.donorService.sendSMS(smsData);
+  }
+
+  // Endpoint for get donor profile
+  @UseGuards(RolesGuard)
+  @Roles(Role.Patient, Role.Doctor)
+  @Get('/profile')
+  async getDonorProfile(@Req() req: any): Promise<Donor> {
+    return await this.donorService.getDonorById(req.user.userId);
   }
 }

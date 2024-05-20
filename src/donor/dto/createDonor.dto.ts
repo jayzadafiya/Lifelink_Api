@@ -6,8 +6,8 @@ import {
   IsEmail,
   IsEnum,
   Length,
-  IsNumber,
   ValidateNested,
+  IsNumber,
 } from 'class-validator';
 
 export class LocationDto {
@@ -34,13 +34,13 @@ export class CreateDonorDto {
   city: string;
 
   @IsNotEmpty()
-  @IsNumber()
+  @IsString()
   @Length(10)
   phone: string;
 
   @IsNotEmpty()
-  @IsString()
-  weight: string;
+  @IsNumber()
+  weight: number;
 
   @IsNotEmpty()
   @IsString()

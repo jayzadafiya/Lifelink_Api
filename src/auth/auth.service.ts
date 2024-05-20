@@ -63,9 +63,9 @@ export class AuthService {
     }
 
     if (role === 'patient') {
-      user = this.userService.createUser(userData);
+      user = await this.userService.createUser(userData);
     } else if (role === 'doctor') {
-      user = this.doctorService.createDoctor(userData);
+      user = await this.doctorService.createDoctor(userData);
     }
 
     if (!user) {
@@ -73,7 +73,7 @@ export class AuthService {
     }
 
     const title = user.role === 'doctor' ? 'Dr.' : 'Mr./Ms.';
-    this.mailService.sendMail({
+    await this.mailService.sendMail({
       from: process.env.EMAIL_FROM,
       to: user.email,
       subject: 'Welcome to Life Link',

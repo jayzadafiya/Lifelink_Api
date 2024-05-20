@@ -104,9 +104,6 @@ export class Doctor extends Document {
   @Prop({ default: 0 })
   totalRating?: number;
 
-  @Prop({ default: 0 })
-  totalPatients: number;
-
   @Prop({ enum: ['pending', 'approved', 'cancelled'], default: 'pending' })
   isApproved?: string;
 
@@ -124,21 +121,6 @@ export class Doctor extends Document {
 
   @Prop()
   passwordResetExpires: Date;
-
-  // Method to calculate total patients
-  static async calculateTotalPatients(
-    doctorId: mongoose.Types.ObjectId,
-  ): Promise<number> {
-    const bookings = await mongoose
-      .model('Booking')
-      .aggregate([
-        { $match: { doctor: doctorId } },
-        { $group: { _id: '$user' } },
-        { $count: 'totalPatients' },
-      ]);
-
-    return bookings.length > 0 ? bookings[0].totalPatients : 0;
-  }
 }
 
 export const DoctorSchema = SchemaFactory.createForClass(Doctor);
@@ -169,37 +151,3 @@ DoctorSchema.methods.createPasswordResetToken = function () {
 
   return resetToken;
 };
-
-// DoctorSchema.post('save', async function (doc) {
-//   const doctorId = doc._id;
-
-//   const cursor = await this.collection.aggregate([
-//     {
-//       $match: { doctor: doctorId },
-//     },
-//     {
-//       $group: {
-//         _id: '$doctor',
-//         numOfRating: { $sum: 1 },
-//         avgRating: { $avg: '$rating' },
-//       },
-//     },
-//   ]);
-
-//   cursor
-//     .toArray()
-//     .then(async (results) => {
-//       const stats = results[0];
-
-//       console.log(stats);
-
-//       const { totalRating, averageRating } =
-//         stats.length > 0 ? stats[0] : { totalRating: 0, averageRating: 0 };
-
-//       this.totalRating = totalRating;
-//       this.averageRating = averageRating;
-//     })
-//     .catch((error) => {
-//       console.error('Error retrieving aggregation result:', error);
-//     });
-// });

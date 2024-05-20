@@ -6,13 +6,19 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { PrescriptionService } from './prescription.service';
 import mongoose from 'mongoose';
 import { createPrescriptionDto } from './dto/createPrescription.dto';
 import { Prescription } from './schema/prescription.schema';
 import { BookingService } from 'src/booking/booking.service';
+import { RolesGuard } from 'shared/role/role.gurd';
+import { Role } from 'utils/role.enum';
+import { Roles } from 'shared/role/role.decorator';
 
+@UseGuards(RolesGuard)
+@Roles(Role.Doctor, Role.Patient)
 @Controller('prescription')
 export class PrescriptionController {
   constructor(
@@ -48,10 +54,17 @@ export class PrescriptionController {
       throw new NotFoundException('Booking Data not found');
     }
 
-    return this.prescriptionService.createPrescription(
+    const prescription = await this.prescriptionService.createPrescription(
       prescriptionData,
       bookingId,
     );
+
+    if (prescription) {
+      booking.status = 'complate';
+      booking.save();
+    }
+
+    return prescription;
   }
 
   // Endpoint for update prescription

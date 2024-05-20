@@ -8,7 +8,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Donor } from './schema/donor.schema';
 import { CreateDonorDto } from './dto/createDonor.dto';
-import { createOne, updateOne } from 'shared/handlerFactory';
+import { createOne, getOne } from 'shared/handlerFactory';
 import { Twilio } from 'twilio';
 import { SMSDto } from './dto/sms.dto';
 
@@ -66,6 +66,11 @@ export class DonorService {
   // Method for find donor by email
   async getDonor(email: string): Promise<Donor> {
     return await this.DonorSchema.findOne({ email });
+  }
+
+  // Method for find donor by id
+  async getDonorById(id: mongoose.Types.ObjectId): Promise<Donor> {
+    return await getOne(this.DonorSchema, id);
   }
 
   // Method for finding donors
@@ -132,8 +137,13 @@ export class DonorService {
     id: mongoose.Types.ObjectId,
     updateData: CreateDonorDto,
   ): Promise<Donor> {
-    const donor = await updateOne(this.DonorSchema, id, updateData);
-
+    const donor = await this.DonorSchema.findByIdAndUpdate(
+      id,
+      { $set: updateData },
+      {
+        new: true,
+      },
+    );
     if (!donor) {
       throw new BadRequestException('Error while updating donor');
     }
