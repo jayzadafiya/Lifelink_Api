@@ -25,6 +25,7 @@ import { BookingService } from 'src/booking/booking.service';
 import { Booking } from 'src/booking/schema/booking.schema';
 import { TimeslotDTO } from 'src/timeslot/dto/createTimeslot.dto';
 import { AdminService } from 'src/admin/admin.service';
+import { User } from 'src/user/schema/user.schema';
 
 @Controller('/doctors')
 export class DoctorController {
@@ -116,23 +117,61 @@ export class DoctorController {
   @Patch('/:id')
   async deleteDoctor(
     @Req() req: any,
-    @Param('id') id: mongoose.Types.ObjectId,
-  ): Promise<void> {
+    @Param('id') doctorId: mongoose.Types.ObjectId,
+  ): Promise<{
+    hasBookings: boolean;
+    bookingData?: { date: string; time: string; user: User }[];
+  }> {
+    // 1. check provide id is valid or not
     if (req.user.role === 'admin') {
-      const user = await this.doctorService.getDoctorById(id);
+      const doctor = await this.doctorService.getDoctorById(doctorId);
 
-      if (user) {
+      if (doctor) {
         throw new BadRequestException('Please provide valid ID');
       }
     }
     if (req.user.role === Role.Doctor) {
-      if (req.user.userId !== id) {
+      if (req.user.userId !== doctorId) {
         throw new UnauthorizedException(
           "You don't have access to delete this user",
         );
       }
     }
 
-    await this.doctorService.deleteDoctor(id);
+    // check is there is any future appointment exist and if not then delete doctor
+    const upcomingAppointment =
+      await this.bookingService.getUpcomingBookingsForDoctor(doctorId);
+    if (upcomingAppointment.length > 0) {
+      const bookingData = upcomingAppointment.map((appointment) => ({
+        date: appointment.bookingDate,
+        time: appointment.time,
+        user: appointment.user,
+      }));
+      return { hasBookings: true, bookingData };
+    } else {
+      await this.doctorService.deleteDoctor(doctorId);
+      return { hasBookings: false };
+    }
+  }
+
+  // Endpoint for take confirmation for delete doctor
+  @UseGuards(RolesGuard)
+  @Roles(Role.Doctor, Role.Admin)
+  @Patch('/:doctorId/confirm')
+  async confirmAndDeleteDoctor(
+    @Param('doctorId') doctorId: mongoose.Types.ObjectId,
+  ): Promise<void> {
+    const upcomingAppointment =
+      await this.bookingService.getUpcomingBookingsForDoctor(doctorId);
+
+    upcomingAppointment.map(async (appointment) => {
+      // Make refund request and make bookking status to cancelled
+      await this.bookingService.refundPayment(appointment._id);
+
+      // Send SMS to user
+      await this.bookingService.sendSMS(appointment);
+    });
+
+    await this.doctorService.deleteDoctor(doctorId);
   }
 }

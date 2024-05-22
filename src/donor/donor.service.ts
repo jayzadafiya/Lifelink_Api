@@ -18,6 +18,7 @@ export class DonorService {
   constructor(
     @InjectModel(Donor.name) private DonorSchema: mongoose.Model<Donor>,
   ) {
+    // Initialize TWILLIO instance with API key
     const accountSid = process.env.TWILIO_ACCOUNT_SID;
     const authToken = process.env.TWILIO_AUTH_TOKEN;
 

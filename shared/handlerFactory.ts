@@ -58,9 +58,7 @@ export const deleteOne = async (
   );
 
   if (!deletedUser)
-    throw new BadRequestException(
-      'Status Faild!!  Error while Delete operation ',
-    );
+    throw new BadRequestException('Error while Delete operation ');
 
   return 'Delete Operation done successfully';
 };
