@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   Injectable,
-  NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Admin } from './schema/admin.schema';
@@ -31,23 +30,25 @@ export class AdminService {
     return await this.adminModel.findOne({ email }).select(selectString);
   }
 
-  // Method for get admin by Id and docor base on pagination
-  async getAdminById(id: mongoose.Types.ObjectId, query: any): Promise<Admin> {
+  // Method for get request doctors
+  async getRequestDoctors(id: mongoose.Types.ObjectId, query: any) {
     // return this.adminModel.findById(id).populate('doctors');
     const page = +query.page || 1;
     const limit = +query.limit || 1;
     const skip = (page - 1) * limit;
 
-    return this.adminModel
+    const admin = await this.adminModel
       .findById(id)
       .populate({
         path: 'doctors',
         options: {
-          limit: limit,
           skip: skip,
+          limit: limit,
         },
       })
       .exec();
+
+    return admin.doctors;
   }
 
   // Method for add doctor to request list
@@ -64,18 +65,6 @@ export class AdminService {
     adminId: mongoose.Types.ObjectId,
     doctorId: mongoose.Types.ObjectId,
   ): Promise<void> {
-    // check that is doctor id is present  in array
-    const admin = await this.adminModel.findOne({
-      _id: adminId,
-      doctors: doctorId,
-    });
-
-    if (!admin) {
-      throw new NotFoundException(
-        'Given doctor id does not exist in request array',
-      );
-    }
-
     await this.adminModel.findOneAndUpdate(
       { role: 'admin' },
       { $pull: { doctors: doctorId } },

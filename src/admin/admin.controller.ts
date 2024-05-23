@@ -28,18 +28,31 @@ export class AdminController {
     private mailService: MailerService,
   ) {}
 
-  // Endpoint for get admin profile and doctor from query
+  // Endpoint for get admin profile
   @UseGuards(RolesGuard)
   @Roles(Role.Admin)
   @Get('/profile')
-  async getAdmin(@Req() req: any, @Query() query?: any): Promise<Admin> {
-    const admin = await this.adminService.getAdminById(req.user.userId, query);
-
+  async getAdmin(@Req() req: any): Promise<Admin> {
+    const admin = await this.adminService.getAdmin(req.user.email);
     if (!admin) {
       throw new NotFoundException('Admin not found!!');
     }
-
     return admin;
+  }
+
+  // Endpoint for get doctors from query
+  @UseGuards(RolesGuard)
+  @Roles(Role.Admin)
+  @Get('/doctors')
+  async getDoctor(@Req() req: any, @Query() query?: any) {
+    const { status } = query;
+    console.log(query);
+    console.log(status);
+    if (status === 'requests') {
+      return await this.adminService.getRequestDoctors(req.user.userId, query);
+    } else if (status === 'approved' || status === 'cancelled') {
+      return await this.doctorService.getDoctorByStatus(status, query);
+    }
   }
 
   // Endpoint for create admin
@@ -64,7 +77,10 @@ export class AdminController {
       throw new NotFoundException('Doctor not found');
     }
 
-    if (message) {
+    if (
+      message &&
+      (doctor.isApproved === 'pending' || doctor.isApproved === 'approved')
+    ) {
       await this.doctorService.addMessage(doctorId, {
         message,
         isApproved: 'cancelled',

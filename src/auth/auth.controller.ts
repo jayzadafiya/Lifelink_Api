@@ -37,9 +37,8 @@ export class AuthController {
     return await this.authService.login(loginUserDto, res);
   }
 
-  
   // Endpoint for admin login
-  @Post('admin/login')
+  @Post('/admin-login')
   async adminLogin(
     @Body() loginUserDto: LoginUserDto,
     @Res() res: Response,

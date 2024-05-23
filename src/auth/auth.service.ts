@@ -91,7 +91,7 @@ export class AuthService {
     let user = null;
 
     // Retrieve user information (patient or doctor) based on email
-    
+
     const patient = await this.userService.getUser(email, '+password');
     const doctor = await this.doctorService.getDoctor(email, '+password');
 
@@ -134,7 +134,7 @@ export class AuthService {
     }
 
     // If authentication is successful, generate JWT token
-    const payload = { email: admin.email, role: 'Admin', userId: admin._id };
+    const payload = { email: admin.email, role: 'admin', userId: admin._id };
     const token = await this.jwtService.signAsync(payload);
 
     res.set('Authorization', `Bearer ${token}`);

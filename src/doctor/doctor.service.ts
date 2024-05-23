@@ -3,12 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  createOne,
-  deleteOne,
-  getOne,
-  updateOne,
-} from 'shared/handlerFactory';
+import { createOne, deleteOne, getOne, updateOne } from 'shared/handlerFactory';
 import mongoose from 'mongoose';
 import { Doctor } from './schema/doctor.schema';
 import { FormDto } from './dto/updateDoctor.dto';
@@ -49,7 +44,7 @@ export class DoctorService {
     const page = +query.page || 1;
     const limit = +query.limit || 1;
     const skip = (page - 1) * limit;
-    
+
     // If query is provided, search by name or specialization
     if (query && Object.keys(query).length > 0 && query.search) {
       doctors = await this.DoctorModel.find({
@@ -153,5 +148,16 @@ export class DoctorService {
       passwordResetToken: token,
       passwordResetExpires: { $gt: Date.now() },
     });
+  }
+
+  // Method for find doctor base on status
+  async getDoctorByStatus(status: string, query: any): Promise<Doctor[]> {
+    const page = +query.page || 1;
+    const limit = +query.limit || 1;
+    const skip = (page - 1) * limit;
+
+    return await this.DoctorModel.find({ isApproved: status, isActive: true })
+      .skip(skip)
+      .limit(limit);
   }
 }
