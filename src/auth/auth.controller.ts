@@ -37,6 +37,16 @@ export class AuthController {
     return await this.authService.login(loginUserDto, res);
   }
 
+  
+  // Endpoint for admin login
+  @Post('admin/login')
+  async adminLogin(
+    @Body() loginUserDto: LoginUserDto,
+    @Res() res: Response,
+  ): Promise<void> {
+    return await this.authService.adminLogin(loginUserDto, res);
+  }
+
   // Endpoint for send reset token
   @UseGuards(RolesGuard)
   @Post('/forgot-password')

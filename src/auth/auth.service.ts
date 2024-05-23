@@ -91,11 +91,10 @@ export class AuthService {
     let user = null;
 
     // Retrieve user information (patient or doctor) based on email
-    const admin = await this.adminService.getAdmin(email, '+password');
+    
     const patient = await this.userService.getUser(email, '+password');
     const doctor = await this.doctorService.getDoctor(email, '+password');
 
-    if (admin) user = admin;
     if (patient) user = patient;
     if (doctor) user = doctor;
 
@@ -116,6 +115,33 @@ export class AuthService {
     // Send user data and token in response
     res.json({
       data: user,
+      token,
+    });
+  }
+
+  // Method to handle admin login
+  async adminLogin(loginData: LoginUserDto, res: Response): Promise<void> {
+    const { email } = loginData;
+
+    const admin = await this.adminService.getAdmin(email, '+password');
+
+    if (!admin) {
+      throw new NotFoundException('Admin does not exist!');
+    }
+
+    if (!(await await bcrypt.compare(loginData.password, admin.password))) {
+      throw new UnauthorizedException('Please enter valid email or password ');
+    }
+
+    // If authentication is successful, generate JWT token
+    const payload = { email: admin.email, role: 'Admin', userId: admin._id };
+    const token = await this.jwtService.signAsync(payload);
+
+    res.set('Authorization', `Bearer ${token}`);
+
+    // Send user data and token in response
+    res.json({
+      data: admin,
       token,
     });
   }
