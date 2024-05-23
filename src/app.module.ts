@@ -17,6 +17,7 @@ import { PrescriptionModule } from './prescription/prescription.module';
 import { AdminModule } from './admin/admin.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { TaskServiceModule } from './task-service/task-service.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { TaskServiceModule } from './task-service/task-service.module';
     PrescriptionModule,
     AdminModule,
     TaskServiceModule,
+    CloudinaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
