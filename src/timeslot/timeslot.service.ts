@@ -9,6 +9,7 @@ import { Timeslots } from './schema/timeslot.schema';
 import { createOne } from 'shared/handlerFactory';
 import { BookingDto } from 'src/booking/dto/booking.dto';
 import { TimeslotDTO } from './dto/createTimeslot.dto';
+import { UpdateTimeslot } from 'src/update-doctor/schema/updateDoctor.schema';
 
 @Injectable()
 export class TimeslotService {
@@ -40,14 +41,14 @@ export class TimeslotService {
   // Method to create timeslots for a doctor
   async createTimeslots(
     doctorId: mongoose.Types.ObjectId,
-    timeslots: TimeslotDTO[],
+    timeslots: UpdateTimeslot[],
   ): Promise<void> {
     for (const slot of timeslots) {
-      const slotName = Object.keys(slot)[0];
-      const times = slot[slotName];
+      // const slotName = Object.keys(slot)[0];
+      // const times = slot[slotName];
 
-      for (const time of times) {
-        const data = { time, doctor: doctorId, slotPhase: slotName };
+      for (const time of slot.times) {
+        const data = { time, doctor: doctorId, slotPhase: slot.slotName };
         await createOne(this.TimeslotModel, data);
       }
     }

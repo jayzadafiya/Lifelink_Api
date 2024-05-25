@@ -18,6 +18,7 @@ import { AdminModule } from './admin/admin.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { TaskServiceModule } from './task-service/task-service.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { UpdateDoctorModule } from './update-doctor/update-doctor.module';
 
 @Module({
   imports: [
@@ -60,6 +61,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     AdminModule,
     TaskServiceModule,
     CloudinaryModule,
+    UpdateDoctorModule,
   ],
   controllers: [AppController],
   providers: [AppService],

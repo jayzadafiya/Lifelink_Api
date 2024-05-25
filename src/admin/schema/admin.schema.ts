@@ -22,7 +22,7 @@ export class Admin extends Document {
 
   @Prop({
     type: [mongoose.Schema.Types.ObjectId],
-    ref: 'Doctor',
+    ref: 'UpdateDoctor',
   })
   doctors: mongoose.Types.ObjectId[];
 }

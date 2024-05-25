@@ -9,11 +9,13 @@ import { Doctor } from './schema/doctor.schema';
 import { FormDto } from './dto/updateDoctor.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateUserDto } from 'src/auth/dto/signup.dto';
+import { UpdateDoctor } from 'src/update-doctor/schema/updateDoctor.schema';
 
 @Injectable()
 export class DoctorService {
   constructor(
     @InjectModel(Doctor.name) private DoctorModel: mongoose.Model<Doctor>,
+  
   ) {}
 
   // Method for get doctor by Emial
@@ -88,7 +90,7 @@ export class DoctorService {
   // Method for update doctor
   async updateDoctor(
     id: mongoose.Types.ObjectId,
-    updateData: FormDto,
+    updateData: UpdateDoctor,
   ): Promise<Doctor> {
     const doctor = await updateOne(this.DoctorModel, id, updateData);
     if (!doctor) {
@@ -160,4 +162,6 @@ export class DoctorService {
       .skip(skip)
       .limit(limit);
   }
+
+ 
 }

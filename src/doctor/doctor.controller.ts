@@ -19,7 +19,6 @@ import { RolesGuard } from 'shared/role/role.gurd';
 import { Roles } from 'shared/role/role.decorator';
 import { Role } from 'utils/role.enum';
 import { Request } from 'express';
-import { UpdateDoctorDto } from './dto/updateDoctor.dto';
 import { TimeslotService } from 'src/timeslot/timeslot.service';
 import { BookingService } from 'src/booking/booking.service';
 import { Booking } from 'src/booking/schema/booking.schema';
@@ -77,39 +76,39 @@ export class DoctorController {
     return { doctor, timeslots };
   }
 
-  // Endpoint for update doctor
-  @UseGuards(RolesGuard)
-  @Roles(Role.Doctor)
-  @Put('/:id')
-  async updateDoctor(
-    @Req() req: any,
-    @Body() updateData: UpdateDoctorDto,
-    @Param('id') doctorId: mongoose.Types.ObjectId,
-  ): Promise<Doctor> {
-    if (req.user.userId !== doctorId) {
-      throw new UnauthorizedException(
-        "You don't have access to update this user",
-      );
-    }
+  // // Endpoint for update doctor
+  // @UseGuards(RolesGuard)
+  // @Roles(Role.Doctor)
+  // @Put('/:id')
+  // async updateDoctor(
+  //   @Req() req: any,
+  //   @Body() updateData: UpdateDoctorDto,
+  //   @Param('id') doctorId: mongoose.Types.ObjectId,
+  // ): Promise<Doctor> {
+  //   if (req.user.userId !== doctorId) {
+  //     throw new UnauthorizedException(
+  //       "You don't have access to update this user",
+  //     );
+  //   }
 
-    const { formData, timeSlots } = updateData;
+  //   const { formData, timeSlots } = updateData;
 
-    // If new timeslots are provided, create them
-    if (timeSlots) {
-      await this.timeslotService.createTimeslots(doctorId, timeSlots);
-    }
+  //   // If new timeslots are provided, create them
+  //   if (timeSlots) {
+  //     await this.timeslotService.createTimeslots(doctorId, timeSlots);
+  //   }
 
-    const updateDoctor = await this.doctorService.updateDoctor(
-      doctorId,
-      formData,
-    );
+  //   const updateDoctor = await this.doctorService.updateDoctor(
+  //     doctorId,
+  //     formData,
+  //   );
 
-    if (updateDoctor) {
-      await this.adminService.addDoctorRequest(updateDoctor._id);
-    }
+  //   if (updateDoctor) {
+  //     await this.adminService.addDoctorRequest(updateDoctor._id);
+  //   }
 
-    return updateDoctor;
-  }
+  //   return updateDoctor;
+  // }
 
   // Endpoint for delete doctor
   @UseGuards(RolesGuard)

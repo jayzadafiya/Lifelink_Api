@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import { Document } from 'mongoose';
 import { bcryptPassword } from 'utils/helperFunction';
 import { Role } from 'utils/role.enum';
+import { Experience, Qualification, Timeslot } from './QTE.schema';
 
 @Schema()
 export class Doctor extends Document {
@@ -50,50 +51,14 @@ export class Doctor extends Document {
   @Prop()
   fees: number;
 
-  @Prop([
-    {
-      startingDate: String,
-      endingDate: String,
-      degree: String,
-      university: String,
-    },
-  ])
-  qualifications?: {
-    startingDate: string;
-    endingDate: string;
-    degree: string;
-    university: string;
-  }[];
+  @Prop({ type: [Qualification], required: false })
+  qualifications?: Qualification[];
 
-  @Prop([
-    {
-      startingDate: String,
-      endingDate: String,
-      position: String,
-      place: String,
-    },
-  ])
-  experiences?: {
-    startingDate: string;
-    endingDate: string;
-    position: string;
-    place: string;
-  }[];
+  @Prop({ type: [Experience], required: false })
+  experiences?: Experience[];
 
-  @Prop([
-    {
-      slot: String,
-      appointments_time: Number,
-      startingTime: String,
-      endingTime: String,
-    },
-  ])
-  timeSlots_data?: {
-    slot: string;
-    appointments_time: number;
-    startingTime: string;
-    endingTime: string;
-  }[];
+  @Prop({ type: [Timeslot], required: false })
+  timeSlots_data?: Timeslot[];
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }] })
   reviews?: mongoose.Schema.Types.ObjectId[];

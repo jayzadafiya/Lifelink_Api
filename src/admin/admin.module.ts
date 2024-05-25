@@ -4,11 +4,15 @@ import { AdminService } from './admin.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AdminSchema } from './schema/admin.schema';
 import { DoctorModule } from 'src/doctor/doctor.module';
+import { UpdateDoctorModule } from 'src/update-doctor/update-doctor.module';
+import { TimeslotModule } from 'src/timeslot/timeslot.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: 'Admin', schema: AdminSchema }]),
     forwardRef(() => DoctorModule),
+    forwardRef(() => UpdateDoctorModule),
+    TimeslotModule,
   ],
   controllers: [AdminController],
   providers: [AdminService],

@@ -19,12 +19,16 @@ import { Role } from 'utils/role.enum';
 import { Admin } from './schema/admin.schema';
 import { DoctorService } from 'src/doctor/doctor.service';
 import { MailerService } from '@nestjs-modules/mailer';
+import { UpdateDoctorService } from 'src/update-doctor/update-doctor.service';
+import { TimeslotService } from 'src/timeslot/timeslot.service';
 
 @Controller('admin')
 export class AdminController {
   constructor(
     private adminService: AdminService,
     private doctorService: DoctorService,
+    private updateDoctorService: UpdateDoctorService,
+    private timeslotService: TimeslotService,
     private mailService: MailerService,
   ) {}
 
@@ -46,8 +50,7 @@ export class AdminController {
   @Get('/doctors')
   async getDoctor(@Req() req: any, @Query() query?: any) {
     const { status } = query;
-    console.log(query);
-    console.log(status);
+
     if (status === 'requests') {
       return await this.adminService.getRequestDoctors(req.user.userId, query);
     } else if (status === 'approved' || status === 'cancelled') {
@@ -69,7 +72,7 @@ export class AdminController {
     @Param('id') doctorId: mongoose.Types.ObjectId,
     @Body('message') message: string,
     @Req() req: any,
-  ) {
+  ): Promise<void> {
     // Check doctor is present or not
     const doctor = await this.doctorService.getDoctorById(doctorId);
 
@@ -77,16 +80,33 @@ export class AdminController {
       throw new NotFoundException('Doctor not found');
     }
 
-    if (
-      message &&
-      (doctor.isApproved === 'pending' || doctor.isApproved === 'approved')
-    ) {
+    const isPendingOrApproved =
+      doctor.isApproved === 'pending' || doctor.isApproved === 'approved';
+
+    // Case when there is a message and the doctor is pending or approved
+    if (message && isPendingOrApproved) {
       await this.doctorService.addMessage(doctorId, {
         message,
         isApproved: 'cancelled',
       });
-    } else {
-      await this.doctorService.addMessage(doctorId, { isApproved: 'approved' });
+    }
+    // Case when there is no message and the doctor is pending or approved
+    else if (!message && isPendingOrApproved) {
+      const doctor = await this.updateDoctorService.deleteDoctorById(doctorId);
+
+      await this.doctorService.updateDoctor(doctorId, doctor);
+      await this.doctorService.addMessage(doctorId, {
+        message: null,
+        isApproved: 'approved',
+      });
+      await this.timeslotService.createTimeslots(doctorId, doctor.timeslots);
+    }
+    // Case when there is no message and the doctor is already cancelled
+    else if (!message && doctor.isApproved === 'cancelled') {
+      await this.doctorService.addMessage(doctorId, {
+        message: null,
+        isApproved: 'approved',
+      });
     }
 
     this.mailService.sendMail({
@@ -95,7 +115,6 @@ export class AdminController {
       subject: 'Life Link Application Status',
       text: `Your application has been ${message ? `rejected due to: ${message}` : 'approved'}.`,
     });
-
-    return await this.adminService.removeDoctorId(req.user.userId, doctorId);
+    await this.adminService.removeDoctorId(req.user.userId, doctorId);
   }
 }
