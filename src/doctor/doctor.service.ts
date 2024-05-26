@@ -15,7 +15,6 @@ import { UpdateDoctor } from 'src/update-doctor/schema/updateDoctor.schema';
 export class DoctorService {
   constructor(
     @InjectModel(Doctor.name) private DoctorModel: mongoose.Model<Doctor>,
-  
   ) {}
 
   // Method for get doctor by Emial
@@ -48,17 +47,25 @@ export class DoctorService {
     const skip = (page - 1) * limit;
 
     // If query is provided, search by name or specialization
-    if (query && Object.keys(query).length > 0 && query.search) {
-      doctors = await this.DoctorModel.find({
+    if (query && Object.keys(query).length > 0) {
+      doctors = this.DoctorModel.find({
         isActive: true,
         isApproved: 'approved',
-        $or: [
-          { name: { $regex: query.search, $options: 'i' } },
-          { specialization: { $regex: query.search, $options: 'i' } },
-        ],
-      })
-        .skip(skip)
-        .limit(limit);
+      });
+
+      if (query.name) {
+        doctors = doctors.find({
+          name: { $regex: query.name, $options: 'i' },
+        });
+      }
+
+      if (query.specialization) {
+        doctors = doctors.find({
+          specialization: { $regex: query.specialization, $options: 'i' },
+        });
+      }
+
+      doctors = await doctors.skip(skip).limit(limit);
     } else {
       // If no query, get all approved doctors
       doctors = await this.DoctorModel.find({
@@ -162,6 +169,4 @@ export class DoctorService {
       .skip(skip)
       .limit(limit);
   }
-
- 
 }
