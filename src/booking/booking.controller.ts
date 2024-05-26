@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  NotFoundException,
   Param,
+  Patch,
   Post,
   Req,
   UseGuards,
@@ -20,9 +22,9 @@ export class BookingController {
   // Endpoint for create stripe checkout session
   @UseGuards(RolesGuard)
   @Roles(Role.Patient)
-  @Post('checkout-session/:doctorId')
+  @Post('checkout-session/:doctor_id')
   async getCheckoutsession(
-    @Param('doctorId') doctorId: mongoose.Types.ObjectId,
+    @Param('doctor_id') doctorId: mongoose.Types.ObjectId,
     @Body() bookingData: BookingDto,
     @Req() req: any,
   ) {
@@ -33,5 +35,23 @@ export class BookingController {
   @Post('/webhook')
   async stripeWebhook(@Req() req: any) {
     return this.bookingService.stripeWebhook(req);
+  }
+
+  // Endpoint for give refund to user
+  @UseGuards(RolesGuard)
+  @Roles(Role.Doctor)
+  @Patch('/refund/:booking_id')
+  async giveRefund(
+    @Param('booking_id') bookingId: mongoose.Types.ObjectId,
+  ): Promise<void> {
+    const booking = await this.bookingService.getBookingById(bookingId);
+
+    if (!booking) {
+      throw new NotFoundException('Booking data not found for this id');
+    }
+
+    await this.bookingService.refundPayment(bookingId);
+
+    await this.bookingService.sendSMS(booking);
   }
 }

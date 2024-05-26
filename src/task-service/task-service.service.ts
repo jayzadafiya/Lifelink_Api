@@ -35,7 +35,7 @@ export class TaskServiceService {
       endDate.setDate(0);
       endDate.setHours(23, 59, 59, 999);
 
-      const allBookings = await this.bookingService.getAllAppointment(
+      const allBookings = await this.bookingService.getAllBooking(
         startDate.toISOString(),
         endDate.toISOString(),
       );

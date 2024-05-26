@@ -73,8 +73,8 @@ export class BookingService {
     }
   }
 
-  // Method for get appointments in two diffrent array (upcoming,history)
-  async getAppointment(
+  // Method for get booking in two diffrent array (upcoming,history)
+  async getBooking(
     userType: string,
     id: mongoose.Types.ObjectId,
   ): Promise<{ upcoming: Booking[]; history: Booking[] }> {
@@ -296,10 +296,7 @@ export class BookingService {
   }
 
   // Method for finding booking data by Date
-  async getAllAppointment(
-    startDate: string,
-    endDate: string,
-  ): Promise<Booking[]> {
+  async getAllBooking(startDate: string, endDate: string): Promise<Booking[]> {
     return await this.BookingModel.find({
       bookingDate: { $gte: startDate, $lte: endDate },
     });
@@ -342,6 +339,10 @@ export class BookingService {
       throw new NotFoundException('Booking not found');
     }
 
+    if (booking.refundStatus === 'succeeded') {
+      throw new ConflictException('Refund is already done!');
+    }
+
     const refund = await this.stripe.refunds.create({
       payment_intent: booking.paymentIntentId,
       amount: amount ? amount : booking.fees * 100,
@@ -351,6 +352,7 @@ export class BookingService {
     booking.refundId = refund.id;
     booking.refundStatus = refund.status;
     booking.status = 'cancelled';
+
     await booking.save();
   }
 

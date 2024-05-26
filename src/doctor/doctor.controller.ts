@@ -55,7 +55,7 @@ export class DoctorController {
     }
 
     // Retrieve appointments for the doctor
-    const appointments = await this.bookingService.getAppointment(
+    const appointments = await this.bookingService.getBooking(
       'doctor',
       doctor._id,
     );

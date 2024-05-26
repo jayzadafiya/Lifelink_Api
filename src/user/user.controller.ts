@@ -49,7 +49,7 @@ export class UserController {
     if (!user) {
       throw new BadRequestException('User Dose not Exists');
     }
-    return this.bookingService.getAppointment(
+    return this.bookingService.getBooking(
       'user',
       new mongoose.Types.ObjectId(req.user.userId),
     );
