@@ -1,7 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Admin } from './schema/admin.schema';
 import mongoose from 'mongoose';
@@ -34,7 +31,7 @@ export class AdminService {
   async getRequestDoctors(id: mongoose.Types.ObjectId, query: any) {
     // return this.adminModel.findById(id).populate('doctors');
     const page = +query.page || 1;
-    const limit = +query.limit || 1;
+    const limit = +query.limit || 8;
     const skip = (page - 1) * limit;
 
     const admin = await this.adminModel

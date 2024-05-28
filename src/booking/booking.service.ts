@@ -227,10 +227,13 @@ export class BookingService {
         mode: 'payment',
         customer: customer.id,
         client_reference_id: doctorId.toString(),
+        shipping_address_collection: {
+          allowed_countries: ['IN'],
+        },
         line_items: [
           {
             price_data: {
-              currency: 'usd',
+              currency: 'inr',
               unit_amount: doctor.fees * 100,
               product_data: {
                 name: doctor.name,

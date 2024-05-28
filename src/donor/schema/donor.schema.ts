@@ -57,7 +57,7 @@ export class Donor extends Document {
   @Prop({ required: true })
   addharCard: string;
 
-  @Prop({ required: true })
+  @Prop()
   lastDonationDate: string;
 }
 

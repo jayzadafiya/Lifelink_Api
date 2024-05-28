@@ -43,7 +43,7 @@ export class DoctorService {
     let doctors;
 
     const page = +query.page || 1;
-    const limit = +query.limit || 1;
+    const limit = +query.limit || 8;
     const skip = (page - 1) * limit;
 
     // If query is provided, search by name or specialization
@@ -162,7 +162,7 @@ export class DoctorService {
   // Method for find doctor base on status
   async getDoctorByStatus(status: string, query: any): Promise<Doctor[]> {
     const page = +query.page || 1;
-    const limit = +query.limit || 1;
+    const limit = +query.limit || 8;
     const skip = (page - 1) * limit;
 
     return await this.DoctorModel.find({ isApproved: status, isActive: true })

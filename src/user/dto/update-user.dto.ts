@@ -1,22 +1,36 @@
 import { Transform } from 'class-transformer';
-import { IsEmail, IsEnum, IsOptional, IsString } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class UpdateUserDto {
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  name?: string;
+  name: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
   @IsEmail()
-  email?: string;
+  email: string;
+
+  @IsNotEmpty()
+  @IsString()
+  phone: string;
 
   @IsOptional()
   @IsString()
-  @Transform(({ value }) => value.toUpperCase())
-  bloodType?: string;
+  photo?: string;
 
-  @IsOptional()
+  @IsNotEmpty()
+  @IsString()
+  @Transform(({ value }) => value.toUpperCase())
+  bloodType: string;
+
+  @IsNotEmpty()
   @IsEnum(['male', 'female', 'other'])
-  gender?: string;
+  gender: string;
 }

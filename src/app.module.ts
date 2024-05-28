@@ -49,6 +49,12 @@ import { UpdateDoctorModule } from './update-doctor/update-doctor.module';
         },
       },
     }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 10,
+      },
+    ]),
 
     AuthModule,
     DoctorModule,
