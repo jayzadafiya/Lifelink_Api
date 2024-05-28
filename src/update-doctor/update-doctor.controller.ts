@@ -16,6 +16,7 @@ import { UpdateDoctorDto } from 'src/doctor/dto/updateDoctor.dto';
 import { UpdateDoctorService } from './update-doctor.service';
 import { AdminService } from 'src/admin/admin.service';
 import { UpdateDoctor, UpdateTimeslot } from './schema/updateDoctor.schema';
+import { AuthRequest } from 'shared/request.interface';
 
 @Controller('update-doctor')
 export class UpdateDoctorController {
@@ -39,7 +40,7 @@ export class UpdateDoctorController {
   @Roles(Role.Doctor)
   @Put('/:id')
   async updateDoctor(
-    @Req() req: any,
+    @Req() req: AuthRequest,
     @Body() updateData: UpdateDoctorDto,
     @Param('id') doctorId: mongoose.Types.ObjectId,
   ): Promise<void> {

@@ -21,6 +21,7 @@ import { DoctorService } from 'src/doctor/doctor.service';
 import { MailerService } from '@nestjs-modules/mailer';
 import { UpdateDoctorService } from 'src/update-doctor/update-doctor.service';
 import { TimeslotService } from 'src/timeslot/timeslot.service';
+import { AuthRequest } from 'shared/request.interface';
 
 @Controller('admin')
 export class AdminController {
@@ -36,7 +37,7 @@ export class AdminController {
   @UseGuards(RolesGuard)
   @Roles(Role.Admin)
   @Get('/profile')
-  async getAdmin(@Req() req: any): Promise<Admin> {
+  async getAdmin(@Req() req: AuthRequest): Promise<Admin> {
     const admin = await this.adminService.getAdmin(req.user.email);
     if (!admin) {
       throw new NotFoundException('Admin not found!!');
@@ -48,7 +49,7 @@ export class AdminController {
   @UseGuards(RolesGuard)
   @Roles(Role.Admin)
   @Get('/doctors')
-  async getDoctor(@Req() req: any, @Query() query?: any) {
+  async getDoctor(@Req() req: AuthRequest, @Query() query?: any) {
     const { status } = query;
 
     if (status === 'requests') {
@@ -71,7 +72,7 @@ export class AdminController {
   async doctorQuery(
     @Param('id') doctorId: mongoose.Types.ObjectId,
     @Body('message') message: string,
-    @Req() req: any,
+    @Req() req: AuthRequest,
   ): Promise<void> {
     // Check doctor is present or not
     const doctor = await this.doctorService.getDoctorById(doctorId);

@@ -39,14 +39,17 @@ export class BookingService {
   }
 
   // Method for create booking
-  async createBooking(customer, doctorId: mongoose.Types.ObjectId, data) {
+  async createBooking(
+    customer: Stripe.Response<Stripe.Customer>,
+    doctorId: mongoose.Types.ObjectId,
+    data: Stripe.Checkout.Session,
+  ): Promise<void> {
     // Parsing booking data from metadata
     const bookingData: BookingDto = JSON.parse(customer.metadata.data);
     const { userId } = customer.metadata;
     const { time, bookingDate } = bookingData;
 
     const isPaid = data.payment_status ? true : false;
-
     // Getting timeslot
     const timeslot = await this.timeslotService.getTimeslotByData(
       bookingData,
@@ -188,7 +191,7 @@ export class BookingService {
     doctorId: mongoose.Types.ObjectId,
     bookingData: BookingDto,
     req: any,
-  ): Promise<any> {
+  ): Promise<Stripe.Response<Stripe.Checkout.Session>> {
     const { bookingDate } = bookingData;
     const doctor = await this.doctorService.getDoctorById(doctorId);
     const user = await this.userService.getUserById(req.user.userId);
@@ -274,7 +277,7 @@ export class BookingService {
 
         this.stripe.customers
           .retrieve(customerId.toString())
-          .then((customer) => {
+          .then((customer: Stripe.Response<Stripe.Customer>) => {
             this.createBooking(customer, doctorId, event.data.object);
           });
 

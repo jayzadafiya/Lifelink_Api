@@ -20,7 +20,7 @@ export class ReviewService {
 
   // Method for get all reviews
   async getAllReviews(): Promise<Review[]> {
-    return getAll(this.ReviewModel);
+    return await getAll(this.ReviewModel);
   }
 
   // Method for create review

@@ -25,6 +25,7 @@ import { Booking } from 'src/booking/schema/booking.schema';
 import { TimeslotDTO } from 'src/timeslot/dto/createTimeslot.dto';
 import { AdminService } from 'src/admin/admin.service';
 import { User } from 'src/user/schema/user.schema';
+import { AuthRequest } from 'shared/request.interface';
 
 @Controller('/doctors')
 export class DoctorController {
@@ -38,13 +39,13 @@ export class DoctorController {
   // Endpoint for get all doctors
   @Get('/')
   async getAllDoctor(@Query() query?: any): Promise<Doctor[]> {
-    return this.doctorService.getAllDoctor(query);
+    return await this.doctorService.getAllDoctor(query);
   }
 
   // Endpoint for get current doctor details and appointments
   @UseGuards(RolesGuard)
   @Get('/profile')
-  async getDoctorProfile(@Req() req: Request | any): Promise<{
+  async getDoctorProfile(@Req() req: AuthRequest): Promise<{
     doctorDetails: Doctor;
     appointments: { upcoming: Booking[]; history: Booking[] };
   }> {
@@ -115,7 +116,7 @@ export class DoctorController {
   @Roles(Role.Doctor, Role.Admin)
   @Patch('/:id')
   async deleteDoctor(
-    @Req() req: any,
+    @Req() req: AuthRequest,
     @Param('id') doctorId: mongoose.Types.ObjectId,
   ): Promise<{
     hasBookings: boolean;

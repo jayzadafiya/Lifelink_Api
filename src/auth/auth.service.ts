@@ -2,7 +2,6 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-  Req,
   UnauthorizedException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
@@ -19,6 +18,7 @@ import { AdminService } from 'src/admin/admin.service';
 import { MailerService } from '@nestjs-modules/mailer';
 import { ResetPasswordDto } from './dto/resetPassword.dto';
 import { ForgotPasswordDto } from './dto/forgotPassword.dto';
+import { AuthRequest } from 'shared/request.interface';
 
 @Injectable()
 export class AuthService {
@@ -85,7 +85,7 @@ export class AuthService {
   }
 
   // Method to handle user login
-  async login(loginData: LoginUserDto, res: Response): Promise<void> {
+  async login(loginData: LoginUserDto, res: Response): Promise<Response> {
     const { email } = loginData;
 
     let user = null;
@@ -113,14 +113,14 @@ export class AuthService {
     res.set('Authorization', `Bearer ${token}`);
 
     // Send user data and token in response
-    res.json({
+    return res.json({
       data: user,
       token,
     });
   }
 
   // Method to handle admin login
-  async adminLogin(loginData: LoginUserDto, res: Response): Promise<void> {
+  async adminLogin(loginData: LoginUserDto, res: Response): Promise<Response> {
     const { email } = loginData;
 
     const admin = await this.adminService.getAdmin(email, '+password');
@@ -140,14 +140,14 @@ export class AuthService {
     res.set('Authorization', `Bearer ${token}`);
 
     // Send user data and token in response
-    res.json({
+    return res.json({
       data: admin,
       token,
     });
   }
 
   // Method to send password reset token
-  async forgotPassword(req: any): Promise<void> {
+  async forgotPassword(req: AuthRequest): Promise<void> {
     const {
       user: { role, email },
     } = req;
@@ -216,7 +216,7 @@ export class AuthService {
 
   // Method for update password
   async updatePassword(
-    @Req() req: any,
+    req: AuthRequest,
     passwordData: ForgotPasswordDto,
   ): Promise<string> {
     const {

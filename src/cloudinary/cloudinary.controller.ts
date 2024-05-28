@@ -6,7 +6,7 @@ export class CloudinaryController {
   constructor(private readonly cloudinaryService: CloudinaryService) {}
 
   @Post()
-  deletePhoto(@Body('publicId') id: string) {
-    return this.cloudinaryService.deletePhoto(id);
+  async deletePhoto(@Body('publicId') id: string): Promise<void> {
+    return await this.cloudinaryService.deletePhoto(id);
   }
 }

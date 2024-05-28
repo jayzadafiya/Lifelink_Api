@@ -6,7 +6,6 @@ import {
 import { createOne, deleteOne, getOne, updateOne } from 'shared/handlerFactory';
 import mongoose from 'mongoose';
 import { Doctor } from './schema/doctor.schema';
-import { FormDto } from './dto/updateDoctor.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateUserDto } from 'src/auth/dto/signup.dto';
 import { UpdateDoctor } from 'src/update-doctor/schema/updateDoctor.schema';

@@ -20,6 +20,7 @@ import { Role } from 'utils/role.enum';
 import { Request } from 'express';
 import { BookingService } from 'src/booking/booking.service';
 import { Booking } from 'src/booking/schema/booking.schema';
+import { AuthRequest } from 'shared/request.interface';
 
 @UseGuards(RolesGuard)
 @Controller('users')
@@ -32,8 +33,8 @@ export class UserController {
   //Endpoint for get current user profile
   @Roles(Role.Patient)
   @Get('/profile')
-  async getMe(@Req() req: any): Promise<User> {
-    return this.userService.getUserById(
+  async getMe(@Req() req: AuthRequest): Promise<User> {
+    return await this.userService.getUserById(
       new mongoose.Types.ObjectId(req.user.userId),
     );
   }
@@ -49,7 +50,7 @@ export class UserController {
     if (!user) {
       throw new BadRequestException('User Dose not Exists');
     }
-    return this.bookingService.getBooking(
+    return await  this.bookingService.getBooking(
       'user',
       new mongoose.Types.ObjectId(req.user.userId),
     );
@@ -68,21 +69,21 @@ export class UserController {
       );
     }
 
-    return this.userService.getUserById(id);
+    return await this.userService.getUserById(id);
   }
 
   // Endpoint for get all users (only for admin)
   @Roles(Role.Admin)
   @Get('/')
   async getAllUser(): Promise<User[]> {
-    return this.userService.getAllUser();
+    return await this.userService.getAllUser();
   }
 
   // Endpoint for update user details
   @Roles(Role.Patient)
   @Put('/:id')
   async updateUser(
-    @Req() req: any,
+    @Req() req: AuthRequest,
     @Body() updateData: UpdateUserDto,
     @Param('id') id: mongoose.Types.ObjectId,
   ): Promise<User> {
@@ -92,14 +93,14 @@ export class UserController {
       );
     }
 
-    return this.userService.updateUser(updateData, id);
+    return await this.userService.updateUser(updateData, id);
   }
 
   // Endpoint for delete user (only for admin)
   @Roles(Role.Patient, Role.Admin)
   @Patch('/:id')
   async deleteUser(
-    @Req() req: any,
+    @Req() req: AuthRequest,
     @Param('id') id: mongoose.Types.ObjectId,
   ): Promise<void> {
     if (req.user.role === 'admin') {

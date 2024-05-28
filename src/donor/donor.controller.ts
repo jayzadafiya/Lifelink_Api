@@ -15,6 +15,7 @@ import { RolesGuard } from 'shared/role/role.gurd';
 import { SMSDto } from './dto/sms.dto';
 import { Roles } from 'shared/role/role.decorator';
 import { Role } from 'utils/role.enum';
+import { AuthRequest } from 'shared/request.interface';
 
 @Controller('donor')
 export class DonorController {
@@ -81,7 +82,7 @@ export class DonorController {
   @UseGuards(RolesGuard)
   @Roles(Role.Patient, Role.Doctor)
   @Get('/profile')
-  async getDonorProfile(@Req() req: any): Promise<Donor> {
+  async getDonorProfile(@Req() req: AuthRequest): Promise<Donor> {
     return await this.donorService.getDonorById(req.user.userId);
   }
 }

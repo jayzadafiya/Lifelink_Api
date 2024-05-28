@@ -8,6 +8,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import Stripe from 'stripe';
 import mongoose from 'mongoose';
 import { BookingService } from './booking.service';
 import { RolesGuard } from 'shared/role/role.gurd';
@@ -27,14 +28,18 @@ export class BookingController {
     @Param('doctor_id') doctorId: mongoose.Types.ObjectId,
     @Body() bookingData: BookingDto,
     @Req() req: any,
-  ) {
-    return this.bookingService.getCheckoutSession(doctorId, bookingData, req);
+  ): Promise<Stripe.Response<Stripe.Checkout.Session>> {
+    return await this.bookingService.getCheckoutSession(
+      doctorId,
+      bookingData,
+      req,
+    );
   }
 
   // Endpoint for chacking session status and it's call automatically by stripe
   @Post('/webhook')
   async stripeWebhook(@Req() req: any) {
-    return this.bookingService.stripeWebhook(req);
+    return await this.bookingService.stripeWebhook(req);
   }
 
   // Endpoint for give refund to user

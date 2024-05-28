@@ -80,7 +80,7 @@ export class PrescriptionController {
       throw new NotFoundException('Booking Data not found');
     }
 
-    return this.prescriptionService.updatePrescription(
+    return await this.prescriptionService.updatePrescription(
       prescriptionData,
       bookingId,
     );

@@ -15,6 +15,7 @@ import { RolesGuard } from 'shared/role/role.gurd';
 import { Roles } from 'shared/role/role.decorator';
 import { Role } from 'utils/role.enum';
 import { CreateReviewDto } from './dto/create-review.dto';
+import { AuthRequest } from 'shared/request.interface';
 
 @Controller('doctors/:doctorId/reviews')
 export class ReviewController {
@@ -23,7 +24,7 @@ export class ReviewController {
   // Endpoint for get all reviews
   @Get('/')
   async getAllReviews(): Promise<Review[]> {
-    return this.reviewService.getAllReviews();
+    return await this.reviewService.getAllReviews();
   }
 
   // Endpoint for create review
@@ -33,7 +34,7 @@ export class ReviewController {
   async createReview(
     @Param('doctorId') doctorId: mongoose.Types.ObjectId,
     @Body() reviewDto: CreateReviewDto,
-    @Req() req: any,
+    @Req() req: AuthRequest,
   ): Promise<Review> {
     // Validate params ID
     if (!mongoose.Types.ObjectId.isValid(doctorId))

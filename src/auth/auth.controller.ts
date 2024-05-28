@@ -17,6 +17,7 @@ import { Response } from 'express';
 import { ResetPasswordDto } from './dto/resetPassword.dto';
 import { ForgotPasswordDto } from './dto/forgotPassword.dto';
 import { RolesGuard } from 'shared/role/role.gurd';
+import { AuthRequest } from 'shared/request.interface';
 
 @Controller('auth')
 export class AuthController {
@@ -33,7 +34,7 @@ export class AuthController {
   async login(
     @Body() loginUserDto: LoginUserDto,
     @Res() res: Response,
-  ): Promise<void> {
+  ): Promise<Response> {
     return await this.authService.login(loginUserDto, res);
   }
 
@@ -42,14 +43,14 @@ export class AuthController {
   async adminLogin(
     @Body() loginUserDto: LoginUserDto,
     @Res() res: Response,
-  ): Promise<void> {
+  ): Promise<Response> {
     return await this.authService.adminLogin(loginUserDto, res);
   }
 
   // Endpoint for send reset token
   @UseGuards(RolesGuard)
   @Post('/forgot-password')
-  async forgotPassword(@Req() req: any): Promise<void> {
+  async forgotPassword(@Req() req: AuthRequest): Promise<void> {
     await this.authService.forgotPassword(req);
   }
 
@@ -66,9 +67,9 @@ export class AuthController {
   @UseGuards(RolesGuard)
   @Patch('/update-password')
   async changePassword(
-    @Req() req: any,
+    @Req() req: AuthRequest,
     @Body() passwordData: ForgotPasswordDto,
-  ) {
+  ): Promise<string> {
     return await this.authService.updatePassword(req, passwordData);
   }
 }
