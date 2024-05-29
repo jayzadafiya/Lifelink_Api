@@ -22,6 +22,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { UpdateDoctorService } from 'src/update-doctor/update-doctor.service';
 import { TimeslotService } from 'src/timeslot/timeslot.service';
 import { AuthRequest } from 'shared/request.interface';
+import { DonorService } from 'src/donor/donor.service';
 
 @Controller('admin')
 export class AdminController {
@@ -30,6 +31,7 @@ export class AdminController {
     private doctorService: DoctorService,
     private updateDoctorService: UpdateDoctorService,
     private timeslotService: TimeslotService,
+    private donorService: DonorService,
     private mailService: MailerService,
   ) {}
 
@@ -54,9 +56,33 @@ export class AdminController {
 
     if (status === 'requests') {
       return await this.adminService.getRequestDoctors(req.user.userId, query);
+    } else if (status === 'donor') {
+      return await this.donorService.getDonors(query);
     } else if (status === 'approved' || status === 'cancelled') {
       return await this.doctorService.getDoctorByStatus(status, query);
     }
+  }
+
+  // Endpoint for show number fof each user
+  @UseGuards(RolesGuard)
+  @Roles(Role.Admin)
+  @Get('/report')
+  async getReport(): Promise<{
+    updateRequest: number;
+    acceptedNumber: number;
+    cancelledNumber: number;
+    donorsNumber: number;
+  }> {
+    const donorsNumber = await this.donorService.donorsNumber();
+    const { acceptedNumber, cancelledNumber } =
+      await this.doctorService.doctorsNumber();
+    const updateRequest = await this.updateDoctorService.updateDoctorsNumber();
+    return {
+      updateRequest,
+      acceptedNumber,
+      cancelledNumber,
+      donorsNumber,
+    };
   }
 
   // Endpoint for create admin

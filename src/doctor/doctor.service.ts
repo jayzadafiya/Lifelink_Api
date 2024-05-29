@@ -37,6 +37,21 @@ export class DoctorService {
     return doctor.populate('reviews');
   }
 
+  // Method for count doctor number
+  async doctorsNumber(): Promise<{
+    acceptedNumber: number;
+    cancelledNumber: number;
+  }> {
+    const acceptedNumber = await this.DoctorModel.countDocuments({
+      isApproved: 'approved',
+    });
+    const cancelledNumber = await this.DoctorModel.countDocuments({
+      isApproved: 'cancelled',
+    });
+
+    return { acceptedNumber, cancelledNumber };
+  }
+
   // Method for get all doctors
   async getAllDoctor(query?: any): Promise<Doctor[]> {
     let doctors;

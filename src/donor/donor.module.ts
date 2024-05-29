@@ -12,5 +12,6 @@ import { HttpModule } from '@nestjs/axios';
   ],
   controllers: [DonorController],
   providers: [DonorService],
+  exports: [DonorService],
 })
 export class DonorModule {}

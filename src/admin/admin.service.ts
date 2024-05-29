@@ -63,7 +63,7 @@ export class AdminService {
     doctorId: mongoose.Types.ObjectId,
   ): Promise<void> {
     await this.adminModel.findOneAndUpdate(
-      { role: 'admin' },
+      { _id: adminId },
       { $pull: { doctors: doctorId } },
       { new: true },
     );

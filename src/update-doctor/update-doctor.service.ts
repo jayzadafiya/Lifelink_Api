@@ -25,6 +25,11 @@ export class UpdateDoctorService {
     return res.acknowledged;
   }
 
+  // Method for count  number of upadte doctor request
+  async updateDoctorsNumber(): Promise<number> {
+    return await this.UpdateDoctorModel.countDocuments();
+  }
+
   // Method for get doctor data by id
   async getDoctorById(id: mongoose.Types.ObjectId): Promise<UpdateDoctor> {
     return await getOne(this.UpdateDoctorModel, id);

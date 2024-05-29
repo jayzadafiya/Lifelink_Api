@@ -25,6 +25,11 @@ export class DonorService {
     this.twilioClient = new Twilio(accountSid, authToken);
   }
 
+  // Method for count donor number
+  async donorsNumber(): Promise<number> {
+    return await this.DonorSchema.countDocuments();
+  }
+
   // Method for get coordinates form address
   async getCoordinates(
     address: string,
@@ -74,7 +79,7 @@ export class DonorService {
     return await getOne(this.DonorSchema, id);
   }
 
-  // Method for finding donors
+  // Method for finding donors base on location
   async getAllDonor(latlog?: string, query?: any): Promise<Donor[]> {
     let donorData = this.DonorSchema.find();
 
@@ -126,6 +131,21 @@ export class DonorService {
         ],
       })
       .sort('location.coordinates')
+      .select('-__v -location')
+      .skip(skip)
+      .limit(limit);
+
+    return finalData;
+  }
+  // Method for finding donors for admin Panal
+  async getDonors(query?: any): Promise<Donor[]> {
+    //value for pagination
+    const page = query.page || 1;
+    const limit = query.limit || 8;
+    const skip = (page - 1) * limit;
+
+    // Get final donor data
+    const finalData = await this.DonorSchema.find()
       .select('-__v -location')
       .skip(skip)
       .limit(limit);
