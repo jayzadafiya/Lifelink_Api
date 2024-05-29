@@ -19,6 +19,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { TaskServiceModule } from './task-service/task-service.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { UpdateDoctorModule } from './update-doctor/update-doctor.module';
+import { SocketModule } from './socket/socket.module';
 
 @Module({
   imports: [
@@ -68,6 +69,7 @@ import { UpdateDoctorModule } from './update-doctor/update-doctor.module';
     TaskServiceModule,
     CloudinaryModule,
     UpdateDoctorModule,
+    SocketModule,
   ],
   controllers: [AppController],
   providers: [AppService],

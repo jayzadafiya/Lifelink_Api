@@ -28,8 +28,10 @@
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/mongoose": "^10.0.4",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/platform-socket.io": "^10.3.8",
     "@nestjs/schedule": "^4.0.2",
     "@nestjs/throttler": "^5.1.2",
+    "@nestjs/websockets": "^10.3.8",
     "axios": "^1.6.8",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
@@ -45,6 +47,7 @@
     "nodemailer": "^6.9.13",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
+    "socket.io": "^4.7.5",
     "stripe": "^14.24.0",
     "twilio": "^5.0.4",
     "xss-clean": "^0.1.4"

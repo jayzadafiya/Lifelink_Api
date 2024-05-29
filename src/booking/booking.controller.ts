@@ -49,14 +49,6 @@ export class BookingController {
   async giveRefund(
     @Param('booking_id') bookingId: mongoose.Types.ObjectId,
   ): Promise<void> {
-    const booking = await this.bookingService.getBookingById(bookingId);
-
-    if (!booking) {
-      throw new NotFoundException('Booking data not found for this id');
-    }
-
     await this.bookingService.refundPayment(bookingId);
-
-    await this.bookingService.sendSMS(booking);
   }
 }

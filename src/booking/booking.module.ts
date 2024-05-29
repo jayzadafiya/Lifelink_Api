@@ -6,6 +6,7 @@ import { UserModule } from 'src/user/user.module';
 import { TimeslotModule } from 'src/timeslot/timeslot.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { BookingSchema } from './schema/booking.schema';
+import { SocketModule } from 'src/socket/socket.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { BookingSchema } from './schema/booking.schema';
     forwardRef(() => DoctorModule),
     forwardRef(() => UserModule),
     TimeslotModule,
+    SocketModule
   ],
   controllers: [BookingController],
   providers: [BookingService],

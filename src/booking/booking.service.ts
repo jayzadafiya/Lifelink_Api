@@ -14,6 +14,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Booking } from './schema/booking.schema';
 import { getOne } from 'shared/handlerFactory';
 import { Twilio } from 'twilio';
+import { SocketGateway } from 'src/socket/socket.gateway';
 
 @Injectable()
 export class BookingService {
@@ -25,6 +26,7 @@ export class BookingService {
     private doctorService: DoctorService,
     private userService: UserService,
     private timeslotService: TimeslotService,
+    private socketGateway: SocketGateway,
   ) {
     // Initialize Stripe instance with API key
     this.stripe = new Stripe(process.env.STRIPE_KEY, {
@@ -74,6 +76,18 @@ export class BookingService {
     if (!booking) {
       throw new BadRequestException('Error while creating appointment');
     }
+
+    // Populate user and doctor fields
+    const populatedBooking = await booking.populate([
+      {
+        path: 'doctor',
+        select: 'name email photo',
+      },
+      {
+        path: 'user',
+      },
+    ]);
+    await this.socketGateway.emitNewBookingUpdate(populatedBooking);
   }
 
   // Method for get booking in two diffrent array (upcoming,history)
@@ -360,6 +374,7 @@ export class BookingService {
     booking.status = 'cancelled';
 
     await booking.save();
+    await this.sendSMS(booking);
   }
 
   // Method for send SMS to user
