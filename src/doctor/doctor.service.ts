@@ -9,11 +9,13 @@ import { Doctor } from './schema/doctor.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateUserDto } from 'src/auth/dto/signup.dto';
 import { UpdateDoctor } from 'src/update-doctor/schema/updateDoctor.schema';
+import { SocketGateway } from 'src/socket/socket.gateway';
 
 @Injectable()
 export class DoctorService {
   constructor(
     @InjectModel(Doctor.name) private DoctorModel: mongoose.Model<Doctor>,
+    private socketGateway: SocketGateway,
   ) {}
 
   // Method for get doctor by Emial
@@ -117,6 +119,7 @@ export class DoctorService {
     if (!doctor) {
       throw new BadRequestException('Error while updating doctor');
     }
+    this.socketGateway.emitDoctorUpdate(doctor);
     return doctor;
   }
 
@@ -162,6 +165,11 @@ export class DoctorService {
     if (!doctor) {
       throw new BadRequestException('Error while updating doctor');
     }
+    this.socketGateway.emitDoctorStatus(
+      doctorId,
+      updateData.isApproved,
+      updateData.message,
+    );
     return doctor;
   }
 

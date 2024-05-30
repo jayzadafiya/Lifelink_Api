@@ -6,15 +6,15 @@ import { DoctorSchema } from './schema/doctor.schema';
 import { TimeslotModule } from 'src/timeslot/timeslot.module';
 import { BookingModule } from 'src/booking/booking.module';
 import { AdminModule } from 'src/admin/admin.module';
+import { SocketModule } from 'src/socket/socket.module';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([
-      { name: 'Doctor', schema: DoctorSchema },
-    ]),
+    MongooseModule.forFeature([{ name: 'Doctor', schema: DoctorSchema }]),
     forwardRef(() => BookingModule),
     forwardRef(() => AdminModule),
     TimeslotModule,
+    SocketModule,
   ],
   controllers: [DoctorController],
   providers: [DoctorService],

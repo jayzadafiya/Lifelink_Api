@@ -6,8 +6,9 @@ import {
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { SocketService } from './socket.service';
 import { Booking } from 'src/booking/schema/booking.schema';
+import mongoose from 'mongoose';
+import { Doctor } from 'src/doctor/schema/doctor.schema';
 
 @WebSocketGateway(3002, {
   cors: {
@@ -19,19 +20,21 @@ export class SocketGateway
 {
   @WebSocketServer() server: Server;
   private clients: {
-    [key: string]: { id: string; role: string; socket: Socket };
+    [key: string]: {
+      id: string;
+      role: string;
+      socket: Socket;
+    };
   } = {};
 
-  constructor(private readonly socketService: SocketService) {}
-
-  afterInit(server: Server) {
+  afterInit() {
     console.log('WebSocket Initialized');
   }
 
   handleConnection(client: Socket) {
     console.log(`Client connected: ${client.id}`);
 
-    client.on('identify', ({ id, role }) => {
+    client.on('identify', ({ id, role }: { id: string; role: string }) => {
       console.log(id, role);
       this.clients[client.id] = { id, role, socket: client };
     });
@@ -47,7 +50,7 @@ export class SocketGateway
     const userId = bookingData.user._id.toString();
     const doctorId = bookingData.doctor._id.toString();
 
-    // Find and emit to the specific user and doctor
+    // Find and emit to the specific patient and doctor
     Object.values(this.clients).forEach(({ id, role, socket }) => {
       if (
         (role === 'patient' && id === userId) ||
@@ -58,20 +61,46 @@ export class SocketGateway
     });
   }
 
+  emitDoctorUpdate(doctorData: Doctor) {
+    const doctorId = doctorData._id.toString();
+
+    // Find and emit to the specific  doctor
+    Object.values(this.clients).forEach(({ id, role, socket }) => {
+      if (role === 'doctor' && id == doctorId) {
+        socket.emit('updateDoctor', doctorData);
+      }
+    });
+  }
+
   emitBookingStatus(bookingData: Booking) {
     const userId = bookingData.user._id.toString();
     const doctorId = bookingData.doctor._id.toString();
 
-    // Find and emit to the specific user and doctor
+    // Find and emit to the specific patient and doctor
     Object.values(this.clients).forEach(({ id, role, socket }) => {
       if (
         (role === 'patient' && id === userId) ||
         (role === 'doctor' && id === doctorId)
       ) {
         socket.emit('bookingStatus', {
-          booking_id: bookingData._id,
+          bookingId: bookingData._id,
           status: bookingData.status,
         });
+      }
+    });
+  }
+
+  emitDoctorStatus(
+    doctorId: mongoose.Types.ObjectId,
+    isApproved: string,
+    message?: string,
+  ) {
+    const docId = doctorId.toString();
+
+    // Find and emit to the specific doctor
+    Object.values(this.clients).forEach(({ id, role, socket }) => {
+      if (role === 'doctor' && id === docId) {
+        socket.emit('doctorStatus', { isApproved, message });
       }
     });
   }

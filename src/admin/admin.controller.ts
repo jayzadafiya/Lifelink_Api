@@ -63,20 +63,21 @@ export class AdminController {
     }
   }
 
-  // Endpoint for show number fof each user
+  // Endpoint for show number of each user
   @UseGuards(RolesGuard)
   @Roles(Role.Admin)
   @Get('/report')
-  async getReport(): Promise<{
+  async getReport(@Req() req: AuthRequest): Promise<{
     updateRequest: number;
     acceptedNumber: number;
     cancelledNumber: number;
     donorsNumber: number;
   }> {
+    const admin = await this.adminService.getAdmin(req.user.email);
     const donorsNumber = await this.donorService.donorsNumber();
     const { acceptedNumber, cancelledNumber } =
       await this.doctorService.doctorsNumber();
-    const updateRequest = await this.updateDoctorService.updateDoctorsNumber();
+    const updateRequest = admin.doctors.length;
     return {
       updateRequest,
       acceptedNumber,
@@ -121,7 +122,10 @@ export class AdminController {
     else if (!message && isPendingOrApproved) {
       const doctor = await this.updateDoctorService.deleteDoctorById(doctorId);
 
-      await this.doctorService.updateDoctor(doctorId, doctor);
+      if (doctor) {
+        await this.doctorService.updateDoctor(doctorId, doctor);
+      }
+
       await this.doctorService.addMessage(doctorId, {
         message: null,
         isApproved: 'approved',
@@ -130,9 +134,20 @@ export class AdminController {
     }
     // Case when there is no message and the doctor is already cancelled
     else if (!message && doctor.isApproved === 'cancelled') {
+      const doctor = await this.updateDoctorService.deleteDoctorById(doctorId);
+      if (doctor) {
+        await this.doctorService.updateDoctor(doctorId, doctor);
+      }
       await this.doctorService.addMessage(doctorId, {
         message: null,
         isApproved: 'approved',
+      });
+    }
+    // Case doctor is chancelled and again send request for approved
+    else if (message && doctor.isApproved === 'cancelled') {
+      await this.doctorService.addMessage(doctorId, {
+        message: message,
+        isApproved: 'cancelled',
       });
     }
 

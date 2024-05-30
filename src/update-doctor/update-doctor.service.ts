@@ -37,8 +37,6 @@ export class UpdateDoctorService {
 
   // Method for delete doctor
   async deleteDoctorById(id: mongoose.Types.ObjectId): Promise<UpdateDoctor> {
-    const doctor = this.UpdateDoctorModel.findByIdAndDelete(id);
-
-    return doctor;
+    return await this.UpdateDoctorModel.findByIdAndDelete(id);
   }
 }
