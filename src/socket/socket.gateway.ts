@@ -50,10 +50,28 @@ export class SocketGateway
     // Find and emit to the specific user and doctor
     Object.values(this.clients).forEach(({ id, role, socket }) => {
       if (
-        (role === 'user' && id === userId) ||
+        (role === 'patient' && id === userId) ||
         (role === 'doctor' && id === doctorId)
       ) {
         socket.emit('newBookingUpdate', bookingData);
+      }
+    });
+  }
+
+  emitBookingStatus(bookingData: Booking) {
+    const userId = bookingData.user._id.toString();
+    const doctorId = bookingData.doctor._id.toString();
+
+    // Find and emit to the specific user and doctor
+    Object.values(this.clients).forEach(({ id, role, socket }) => {
+      if (
+        (role === 'patient' && id === userId) ||
+        (role === 'doctor' && id === doctorId)
+      ) {
+        socket.emit('bookingStatus', {
+          booking_id: bookingData._id,
+          status: bookingData.status,
+        });
       }
     });
   }

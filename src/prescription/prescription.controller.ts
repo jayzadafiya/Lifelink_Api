@@ -16,6 +16,7 @@ import { BookingService } from 'src/booking/booking.service';
 import { RolesGuard } from 'shared/role/role.gurd';
 import { Role } from 'utils/role.enum';
 import { Roles } from 'shared/role/role.decorator';
+import { SocketGateway } from 'src/socket/socket.gateway';
 
 @UseGuards(RolesGuard)
 @Roles(Role.Doctor, Role.Patient)
@@ -24,6 +25,7 @@ export class PrescriptionController {
   constructor(
     private prescriptionService: PrescriptionService,
     private bookingService: BookingService,
+    private socketGateway: SocketGateway,
   ) {}
 
   // Endpoint for get prescription by bokingId
@@ -61,8 +63,9 @@ export class PrescriptionController {
 
     if (prescription) {
       booking.status = 'complate';
-      booking.save();
+      await booking.save();
     }
+    this.socketGateway.emitBookingStatus(booking);
 
     return prescription;
   }

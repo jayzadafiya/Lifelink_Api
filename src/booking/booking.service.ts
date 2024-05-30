@@ -87,7 +87,7 @@ export class BookingService {
         path: 'user',
       },
     ]);
-    await this.socketGateway.emitNewBookingUpdate(populatedBooking);
+    this.socketGateway.emitNewBookingUpdate(populatedBooking);
   }
 
   // Method for get booking in two diffrent array (upcoming,history)
@@ -375,6 +375,7 @@ export class BookingService {
 
     await booking.save();
     await this.sendSMS(booking);
+    this.socketGateway.emitBookingStatus(booking);
   }
 
   // Method for send SMS to user

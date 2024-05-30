@@ -4,6 +4,7 @@ import { PrescriptionService } from './prescription.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PrescriptionSchema } from './schema/prescription.schema';
 import { BookingModule } from 'src/booking/booking.module';
+import { SocketModule } from 'src/socket/socket.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { BookingModule } from 'src/booking/booking.module';
       { name: 'Prescription', schema: PrescriptionSchema },
     ]),
     BookingModule,
+    SocketModule,
   ],
   controllers: [PrescriptionController],
   providers: [PrescriptionService],
