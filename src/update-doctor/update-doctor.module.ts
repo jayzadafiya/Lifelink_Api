@@ -4,6 +4,7 @@ import { UpdateDoctorController } from './update-doctor.controller';
 import { UpdateDoctorSchema } from './schema/updateDoctor.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AdminModule } from 'src/admin/admin.module';
+import { SocketModule } from 'src/socket/socket.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { AdminModule } from 'src/admin/admin.module';
     ]),
 
     forwardRef(() => AdminModule),
+    SocketModule,
   ],
   providers: [UpdateDoctorService],
   controllers: [UpdateDoctorController],

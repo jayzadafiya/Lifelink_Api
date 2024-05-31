@@ -49,6 +49,7 @@ export class TimeslotService {
 
       for (const time of slot.times) {
         const data = { time, doctor: doctorId, slotPhase: slot.slotName };
+        console.log(data);
         await createOne(this.TimeslotModel, data);
       }
     }

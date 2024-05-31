@@ -1,28 +1,37 @@
 import mongoose from 'mongoose';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { UpdateDoctor, UpdateTimeslot } from './schema/updateDoctor.schema';
 import { FormDto } from 'src/doctor/dto/updateDoctor.dto';
 import { getOne } from 'shared/handlerFactory';
+import { SocketGateway } from 'src/socket/socket.gateway';
 
 @Injectable()
 export class UpdateDoctorService {
   constructor(
     @InjectModel(UpdateDoctor.name)
     private UpdateDoctorModel: mongoose.Model<UpdateDoctor>,
+    private socketGateway: SocketGateway,
   ) {}
 
   // Method for create and update dummy update doctor
-  async upsertDummyupdateDoctor(
+  async upsertUpdateDoctor(
     id: mongoose.Types.ObjectId,
     doctorData: { formData: FormDto; timeslots: UpdateTimeslot[] },
-  ): Promise<boolean> {
-    const res = await this.UpdateDoctorModel.updateOne(
+  ): Promise<UpdateDoctor> {
+    const updateDoctor = await this.UpdateDoctorModel.findOneAndUpdate(
       { _id: id },
       { $set: { ...doctorData.formData, timeslots: doctorData.timeslots } },
       { upsert: true, new: true },
     );
-    return res.acknowledged;
+
+    if (!updateDoctor) {
+      throw new BadRequestException(
+        'Error while creating doctor updation request',
+      );
+    }
+    this.socketGateway.emitDoctorRequestToAdmin(updateDoctor);
+    return updateDoctor;
   }
 
   // Method for count  number of upadte doctor request

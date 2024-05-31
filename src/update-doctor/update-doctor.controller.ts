@@ -62,12 +62,11 @@ export class UpdateDoctorController {
         timeslotArray.push({ slotName, times });
       }
     }
-
-    const acknowledged = await this.updateDoctorService.upsertDummyupdateDoctor(
+    const updateDoctor = await this.updateDoctorService.upsertUpdateDoctor(
       doctorId,
       { formData, timeslots: timeslotArray },
     );
-    if (acknowledged) {
+    if (updateDoctor) {
       await this.adminService.addDoctorRequest(doctorId);
     }
   }

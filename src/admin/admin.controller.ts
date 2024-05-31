@@ -142,6 +142,7 @@ export class AdminController {
         message: null,
         isApproved: 'approved',
       });
+      await this.timeslotService.createTimeslots(doctorId, doctor.timeslots);
     }
     // Case doctor is chancelled and again send request for approved
     else if (message && doctor.isApproved === 'cancelled') {

@@ -9,6 +9,7 @@ import { Server, Socket } from 'socket.io';
 import { Booking } from 'src/booking/schema/booking.schema';
 import mongoose from 'mongoose';
 import { Doctor } from 'src/doctor/schema/doctor.schema';
+import { UpdateDoctor } from 'src/update-doctor/schema/updateDoctor.schema';
 
 @WebSocketGateway(3002, {
   cors: {
@@ -38,7 +39,6 @@ export class SocketGateway
       console.log(id, role);
       this.clients[client.id] = { id, role, socket: client };
     });
-    console.log(this.clients);
   }
 
   handleDisconnect(client: Socket) {
@@ -101,6 +101,15 @@ export class SocketGateway
     Object.values(this.clients).forEach(({ id, role, socket }) => {
       if (role === 'doctor' && id === docId) {
         socket.emit('doctorStatus', { isApproved, message });
+      }
+    });
+  }
+
+  emitDoctorRequestToAdmin(updateData: UpdateDoctor) {
+    // Find and emit to the admin
+    Object.values(this.clients).forEach(({ role, socket }) => {
+      if (role === 'admin') {
+        socket.emit('updateDoctorToAdmin', updateData);
       }
     });
   }
