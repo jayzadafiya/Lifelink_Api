@@ -31,13 +31,30 @@ export class SocketGateway
   afterInit() {
     console.log('WebSocket Initialized');
   }
-
   handleConnection(client: Socket) {
     console.log(`Client connected: ${client.id}`);
 
     client.on('identify', ({ id, role }: { id: string; role: string }) => {
-      console.log(id, role);
-      this.clients[client.id] = { id, role, socket: client };
+      if (id && role) {
+        console.log(`Identified client - ID: ${id}, Role: ${role}`);
+        this.clients[client.id] = { id, role, socket: client };
+      } else {
+        console.error('Invalid identification data', { id, role });
+      }
+    });
+
+    client.on('removeIdentity', ({ id }: { id: string }) => {
+      const clientEntry = Object.entries(this.clients).find(
+        ([_, clientData]) => clientData.id === id,
+      );
+
+      if (clientEntry) {
+        const [clientKey] = clientEntry;
+        delete this.clients[clientKey];
+        console.log(`Removed client identity - ID: ${id}`);
+      } else {
+        console.error(`No client found with ID: ${id} to remove.`);
+      }
     });
   }
 
@@ -46,6 +63,7 @@ export class SocketGateway
     console.log(`Client disconnected: ${client.id}`);
   }
 
+  // Function to emit a new booking update to the specific patient and doctor
   emitNewBookingUpdate(bookingData: Booking) {
     const userId = bookingData.user._id.toString();
     const doctorId = bookingData.doctor._id.toString();
@@ -61,6 +79,7 @@ export class SocketGateway
     });
   }
 
+  // Function to emit updates to a specific doctor
   emitDoctorUpdate(doctorData: Doctor) {
     const doctorId = doctorData._id.toString();
 
@@ -72,6 +91,7 @@ export class SocketGateway
     });
   }
 
+  // Function to emit booking status updates to the specific patient and doctor
   emitBookingStatus(bookingData: Booking) {
     const userId = bookingData.user._id.toString();
     const doctorId = bookingData.doctor._id.toString();
@@ -90,6 +110,7 @@ export class SocketGateway
     });
   }
 
+  // Function to emit doctor status updates to a specific doctor
   emitDoctorStatus(
     doctorId: mongoose.Types.ObjectId,
     isApproved: string,
@@ -105,11 +126,22 @@ export class SocketGateway
     });
   }
 
+  // Function to emit doctor update requests to admin
   emitDoctorRequestToAdmin(updateData: UpdateDoctor) {
     // Find and emit to the admin
     Object.values(this.clients).forEach(({ role, socket }) => {
       if (role === 'admin') {
         socket.emit('updateDoctorToAdmin', updateData);
+      }
+    });
+  }
+
+  // Function to emit logout service to admin
+  emitLogoutAdmin() {
+    // Find and emit to the admin
+    Object.values(this.clients).forEach(({ role, socket }) => {
+      if (role === 'admin') {
+        socket.emit('logoutAdmin');
       }
     });
   }

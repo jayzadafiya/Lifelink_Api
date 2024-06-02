@@ -25,6 +25,12 @@ export class Admin extends Document {
     ref: 'UpdateDoctor',
   })
   doctors: mongoose.Types.ObjectId[];
+
+  @Prop()
+  currentToken: string;
+
+  @Prop({ select: false })
+  secretKey: string;
 }
 
 export const AdminSchema = SchemaFactory.createForClass(Admin);

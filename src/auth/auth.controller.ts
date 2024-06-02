@@ -1,23 +1,26 @@
 import {
   Body,
   Controller,
+  Param,
   Patch,
   Post,
   Query,
   Req,
-  Res,
   UseGuards,
 } from '@nestjs/common';
+import mongoose from 'mongoose';
 import { AuthService } from './auth.service';
 import { Doctor } from 'src/doctor/schema/doctor.schema';
 import { User } from 'src/user/schema/user.schema';
 import { CreateUserDto } from './dto/signup.dto';
 import { LoginUserDto } from './dto/login.dto';
-import { Response } from 'express';
 import { ResetPasswordDto } from './dto/resetPassword.dto';
 import { ForgotPasswordDto } from './dto/forgotPassword.dto';
 import { RolesGuard } from 'shared/role/role.gurd';
 import { AuthRequest } from 'shared/request.interface';
+import { Roles } from 'shared/role/role.decorator';
+import { Role } from 'utils/role.enum';
+import { Admin } from 'src/admin/schema/admin.schema';
 
 @Controller('auth')
 export class AuthController {
@@ -33,18 +36,26 @@ export class AuthController {
   @Post('/login')
   async login(
     @Body() loginUserDto: LoginUserDto,
-    @Res() res: Response,
-  ): Promise<Response> {
-    return await this.authService.login(loginUserDto, res);
+  ): Promise<{ data: User | Admin; token: string }> {
+    return await this.authService.login(loginUserDto);
   }
 
   // Endpoint for admin login
   @Post('/admin-login')
   async adminLogin(
     @Body() loginUserDto: LoginUserDto,
-    @Res() res: Response,
-  ): Promise<Response> {
-    return await this.authService.adminLogin(loginUserDto, res);
+  ): Promise<{ data: Admin; token: string }> {
+    return await this.authService.adminLogin(loginUserDto);
+  }
+
+  // Endpoint for admin logout
+  @UseGuards(RolesGuard)
+  @Roles(Role.Admin)
+  @Post('/:adminId/admin-logout')
+  async logout(
+    @Param('adminId') adminId: mongoose.Types.ObjectId,
+  ): Promise<void> {
+    await this.authService.adminLogout(adminId);
   }
 
   // Endpoint for send reset token

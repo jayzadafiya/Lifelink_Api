@@ -1,6 +1,7 @@
 import {
   IsEmail,
   IsNotEmpty,
+  IsOptional,
   IsString,
   Matches,
   MaxLength,
@@ -25,4 +26,7 @@ export class LoginUserDto {
   //   },
   // )
   password: string;
+
+  @IsOptional()
+  secretKey?: string;
 }

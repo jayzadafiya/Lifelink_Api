@@ -39,8 +39,8 @@ export class AdminService {
       .populate({
         path: 'doctors',
         options: {
-          skip: skip,
-          limit: limit,
+           skip,
+          limit,
         },
       })
       .exec();
@@ -55,6 +55,11 @@ export class AdminService {
       { $addToSet: { doctors: doctorId } },
       { new: true },
     );
+  }
+
+  // Method for remove token form data
+  async removeToken(adminId: mongoose.Types.ObjectId): Promise<void> {
+    await this.adminModel.findByIdAndUpdate(adminId, { currentToken: null });
   }
 
   // Method for remove doctor from request list

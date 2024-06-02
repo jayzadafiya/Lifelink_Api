@@ -1,24 +1,27 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
+import mongoose from 'mongoose';
 import { DoctorService } from 'src/doctor/doctor.service';
 import { UserService } from 'src/user/user.service';
 import { CreateUserDto } from './dto/signup.dto';
 import { User } from 'src/user/schema/user.schema';
 import { Doctor } from 'src/doctor/schema/doctor.schema';
 import { JwtService } from '@nestjs/jwt';
-import { Response } from 'express';
 import { LoginUserDto } from './dto/login.dto';
 import { AdminService } from 'src/admin/admin.service';
 import { MailerService } from '@nestjs-modules/mailer';
 import { ResetPasswordDto } from './dto/resetPassword.dto';
 import { ForgotPasswordDto } from './dto/forgotPassword.dto';
 import { AuthRequest } from 'shared/request.interface';
+import { SocketGateway } from 'src/socket/socket.gateway';
+import { Admin } from 'src/admin/schema/admin.schema';
 
 @Injectable()
 export class AuthService {
@@ -28,6 +31,7 @@ export class AuthService {
     private adminService: AdminService,
     private mailService: MailerService,
     private jwtService: JwtService,
+    private socketGateway: SocketGateway,
   ) {}
 
   // Method for creation token
@@ -85,7 +89,9 @@ export class AuthService {
   }
 
   // Method to handle user login
-  async login(loginData: LoginUserDto, res: Response): Promise<Response> {
+  async login(
+    loginData: LoginUserDto,
+  ): Promise<{ data: User | Admin; token: string }> {
     const { email } = loginData;
 
     let user = null;
@@ -110,20 +116,19 @@ export class AuthService {
     const payload = { email: user.email, role: user.role, userId: user._id };
     const token = await this.jwtService.signAsync(payload);
 
-    res.set('Authorization', `Bearer ${token}`);
-
     // Send user data and token in response
-    return res.json({
-      data: user,
-      token,
-    });
+    return { data: user, token };
   }
 
   // Method to handle admin login
-  async adminLogin(loginData: LoginUserDto, res: Response): Promise<Response> {
+  async adminLogin(
+    loginData: LoginUserDto,
+  ): Promise<{ data: Admin; token: string }> {
     const { email } = loginData;
-
-    const admin = await this.adminService.getAdmin(email, '+password');
+    const admin = await this.adminService.getAdmin(
+      email,
+      '+password +secretKey',
+    );
 
     if (!admin) {
       throw new NotFoundException('Admin does not exist!');
@@ -133,17 +138,38 @@ export class AuthService {
       throw new UnauthorizedException('Please enter valid email or password ');
     }
 
+    if (!loginData.secretKey && admin.currentToken) {
+      const { exp } = await this.jwtService.verifyAsync(admin.currentToken, {
+        secret: process.env.JWT_SECRET_KEY,
+      });
+
+      if (exp * 1000 > Date.now()) {
+        throw new ConflictException('Admin is logging in other device');
+      }
+    }
+
+    if (loginData.secretKey) {
+      if (loginData.secretKey !== admin.secretKey) {
+        throw new UnauthorizedException('Secret key is incorrect');
+      }
+      if (loginData.secretKey === admin.secretKey) {
+        this.socketGateway.emitLogoutAdmin();
+      }
+    }
+
     // If authentication is successful, generate JWT token
     const payload = { email: admin.email, role: 'admin', userId: admin._id };
     const token = await this.jwtService.signAsync(payload);
 
-    res.set('Authorization', `Bearer ${token}`);
+    admin.currentToken = token;
+    admin.save();
 
-    // Send user data and token in response
-    return res.json({
-      data: admin,
-      token,
-    });
+    return { data: admin, token };
+  }
+
+  // Method for admin logout
+  async adminLogout(adminId: mongoose.Types.ObjectId) {
+    await this.adminService.removeToken(adminId);
   }
 
   // Method to send password reset token
@@ -167,7 +193,6 @@ export class AuthService {
     const resetToken = user.createPasswordResetToken();
     await user.save();
 
-    console.log(resetToken);
     // 3) send it to user email
     const resetUrl = `${req.protocol}://${req.get(
       'host',
