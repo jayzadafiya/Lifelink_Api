@@ -332,7 +332,7 @@ export class BookingService {
     const bookings = await this.BookingModel.find({
       doctor: doctorId,
       isPaid: true,
-      status: { $ne: 'cancelled' },
+      status: 'pending',
       $or: [
         { bookingDate: { $gt: currentDateString } },
         {

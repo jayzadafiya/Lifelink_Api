@@ -13,7 +13,7 @@ import { AuthService } from './auth.service';
 import { Doctor } from 'src/doctor/schema/doctor.schema';
 import { User } from 'src/user/schema/user.schema';
 import { CreateUserDto } from './dto/signup.dto';
-import { LoginUserDto } from './dto/login.dto';
+import { AdminLoginUserDto, LoginUserDto } from './dto/login.dto';
 import { ResetPasswordDto } from './dto/resetPassword.dto';
 import { ForgotPasswordDto } from './dto/forgotPassword.dto';
 import { RolesGuard } from 'shared/role/role.gurd';
@@ -42,9 +42,11 @@ export class AuthController {
 
   // Endpoint for admin login
   @Post('/admin-login')
-  async adminLogin(
-    @Body() loginUserDto: LoginUserDto,
-  ): Promise<{ data: Admin; token: string }> {
+  async adminLogin(@Body() loginUserDto: AdminLoginUserDto): Promise<{
+    data: Partial<Admin>;
+    isAlreadyLogging?: boolean;
+    token?: string;
+  }> {
     return await this.authService.adminLogin(loginUserDto);
   }
 

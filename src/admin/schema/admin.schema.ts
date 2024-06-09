@@ -31,6 +31,15 @@ export class Admin extends Document {
 
   @Prop({ select: false })
   secretKey: string;
+
+  @Prop()
+  browser?: string;
+
+  @Prop()
+  device?: string;
+
+  @Prop()
+  os?: string;
 }
 
 export const AdminSchema = SchemaFactory.createForClass(Admin);

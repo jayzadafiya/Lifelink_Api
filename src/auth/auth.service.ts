@@ -14,7 +14,7 @@ import { CreateUserDto } from './dto/signup.dto';
 import { User } from 'src/user/schema/user.schema';
 import { Doctor } from 'src/doctor/schema/doctor.schema';
 import { JwtService } from '@nestjs/jwt';
-import { LoginUserDto } from './dto/login.dto';
+import { AdminLoginUserDto, LoginUserDto } from './dto/login.dto';
 import { AdminService } from 'src/admin/admin.service';
 import { MailerService } from '@nestjs-modules/mailer';
 import { ResetPasswordDto } from './dto/resetPassword.dto';
@@ -121,10 +121,12 @@ export class AuthService {
   }
 
   // Method to handle admin login
-  async adminLogin(
-    loginData: LoginUserDto,
-  ): Promise<{ data: Admin; token: string }> {
-    const { email } = loginData;
+  async adminLogin(loginData: AdminLoginUserDto): Promise<{
+    data: Partial<Admin>;
+    isAlreadyLogging?: boolean;
+    token?: string;
+  }> {
+    const { email, browser, device, os } = loginData;
     const admin = await this.adminService.getAdmin(
       email,
       '+password +secretKey',
@@ -144,7 +146,11 @@ export class AuthService {
       });
 
       if (exp * 1000 > Date.now()) {
-        throw new ConflictException('Admin is logging in other device');
+        return {
+          data: { browser: admin.browser, device: admin.device, os: admin.os },
+          isAlreadyLogging: true,
+        };
+        // throw new ConflictException('Admin is logging in other device');
       }
     }
 
@@ -162,6 +168,10 @@ export class AuthService {
     const token = await this.jwtService.signAsync(payload);
 
     admin.currentToken = token;
+    admin.browser = browser;
+    admin.device = device;
+    admin.os = os;
+    console.log(loginData);
     admin.save();
 
     return { data: admin, token };
