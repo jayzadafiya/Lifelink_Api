@@ -108,18 +108,12 @@ export class AdminController {
       throw new NotFoundException('Doctor not found');
     }
 
-    const isPendingOrApproved =
-      doctor.isApproved === 'pending' || doctor.isApproved === 'approved';
-
-    // Case when there is a message and the doctor is pending or approved
-    if (message && isPendingOrApproved) {
+    if (message) {
       await this.doctorService.addMessage(doctorId, {
         message,
         isApproved: 'cancelled',
       });
-    }
-    // Case when there is no message and the doctor is pending or approved
-    else if (!message && isPendingOrApproved) {
+    } else {
       const doctor = await this.updateDoctorService.deleteDoctorById(doctorId);
 
       if (doctor) {
@@ -130,26 +124,10 @@ export class AdminController {
         message: null,
         isApproved: 'approved',
       });
-      await this.timeslotService.createTimeslots(doctorId, doctor.timeslots);
-    }
-    // Case when there is no message and the doctor is already cancelled
-    else if (!message && doctor.isApproved === 'cancelled') {
-      const doctor = await this.updateDoctorService.deleteDoctorById(doctorId);
-      if (doctor) {
-        await this.doctorService.updateDoctor(doctorId, doctor);
+
+      if (doctor?.timeslots) {
+        await this.timeslotService.createTimeslots(doctorId, doctor.timeslots);
       }
-      await this.doctorService.addMessage(doctorId, {
-        message: null,
-        isApproved: 'approved',
-      });
-      await this.timeslotService.createTimeslots(doctorId, doctor.timeslots);
-    }
-    // Case doctor is chancelled and again send request for approved
-    else if (message && doctor.isApproved === 'cancelled') {
-      await this.doctorService.addMessage(doctorId, {
-        message: message,
-        isApproved: 'cancelled',
-      });
     }
 
     this.mailService.sendMail({
