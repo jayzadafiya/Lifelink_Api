@@ -20,6 +20,7 @@ import { TaskServiceModule } from './task-service/task-service.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { UpdateDoctorModule } from './update-doctor/update-doctor.module';
 import { SocketModule } from './socket/socket.module';
+import { ContactModule } from './contact/contact.module';
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { SocketModule } from './socket/socket.module';
     CloudinaryModule,
     UpdateDoctorModule,
     SocketModule,
+    ContactModule,
   ],
   controllers: [AppController],
   providers: [AppService],
