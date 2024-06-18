@@ -81,6 +81,10 @@ export class FormDto {
   photo?: string;
 
   @IsString()
+  @IsOptional()
+  document?: string;
+
+  @IsString()
   @IsNotEmpty()
   about: string;
 

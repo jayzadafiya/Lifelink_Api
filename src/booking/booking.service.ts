@@ -383,13 +383,13 @@ export class BookingService {
     const { user, doctor } = booking;
 
     const message = `Dear ${user.name},\nWe regret to inform you that Dr. ${doctor.name} is unavailable for your appointment on ${booking.bookingDate} at ${booking.time}.\nWe understand this may cause inconvenience, and we sincerely apologize for any disruption to your schedule.\nYour payment will be automatically refunded within 15 business days. You can expect the funds to reflect in your account associated with the booking.\nIf you'd like to reschedule for a different date or time, please visit LifeLink website\nThank you for your understanding.\n\nSincerely,\nLifeLink`;
-    console.log(message);
-    // await this.twilioClient.messages
-    //   .create({
-    //     body: message,
-    //     from: process.env.TWILIO_SENDER_PHONE_NUMBER,
-    //     to: `+91${user.phone}`,
-    //   })
-    //   .then((message) => console.log(message.sid));
+
+    await this.twilioClient.messages
+      .create({
+        body: message,
+        from: process.env.TWILIO_SENDER_PHONE_NUMBER,
+        to: `+91${user.phone}`,
+      })
+      .then((message) => console.log(message.sid));
   }
 }

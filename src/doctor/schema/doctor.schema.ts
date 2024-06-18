@@ -26,6 +26,9 @@ export class Doctor extends Document {
 
   @Prop()
   photo?: string;
+ 
+  @Prop()
+  document?: string;
 
   @Prop({ enum: ['male', 'female', 'other'] })
   gender?: string;
