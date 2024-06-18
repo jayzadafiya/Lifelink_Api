@@ -171,7 +171,6 @@ export class AuthService {
     admin.browser = browser;
     admin.device = device;
     admin.os = os;
-    console.log(loginData);
     admin.save();
 
     return { data: admin, token };
