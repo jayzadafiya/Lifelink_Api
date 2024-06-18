@@ -54,7 +54,7 @@ export class Donor extends Document {
   @Prop({ required: true })
   bloodType: string;
 
-  @Prop({ required: true })
+  @Prop()
   addharCard: string;
 
   @Prop()

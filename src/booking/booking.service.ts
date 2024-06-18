@@ -334,11 +334,11 @@ export class BookingService {
       isPaid: true,
       status: 'pending',
       $or: [
-        { bookingDate: { $gt: currentDateString } },
         {
           bookingDate: currentDateString,
           time: { $gt: currentTimeString },
         },
+        { bookingDate: { $gt: currentDateString } },
       ],
     });
 
@@ -353,7 +353,9 @@ export class BookingService {
     const booking = await this.BookingModel.findOne({
       _id: bookingId,
       isPaid: true,
-    });
+    }).populate('user');
+
+    console.log(booking);
 
     if (!booking) {
       throw new NotFoundException('Booking not found');

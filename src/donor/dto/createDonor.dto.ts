@@ -67,10 +67,9 @@ export class CreateDonorDto {
   @IsString()
   bloodType: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  @Length(12)
-  addharCard: string;
+  addharCard?: string;
 
   @IsOptional()
   @IsString()

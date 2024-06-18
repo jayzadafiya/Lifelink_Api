@@ -77,39 +77,6 @@ export class DoctorController {
     return { doctor, timeslots };
   }
 
-  // // Endpoint for update doctor
-  // @UseGuards(RolesGuard)
-  // @Roles(Role.Doctor)
-  // @Put('/:id')
-  // async updateDoctor(
-  //   @Req() req: any,
-  //   @Body() updateData: UpdateDoctorDto,
-  //   @Param('id') doctorId: mongoose.Types.ObjectId,
-  // ): Promise<Doctor> {
-  //   if (req.user.userId !== doctorId) {
-  //     throw new UnauthorizedException(
-  //       "You don't have access to update this user",
-  //     );
-  //   }
-
-  //   const { formData, timeSlots } = updateData;
-
-  //   // If new timeslots are provided, create them
-  //   if (timeSlots) {
-  //     await this.timeslotService.createTimeslots(doctorId, timeSlots);
-  //   }
-
-  //   const updateDoctor = await this.doctorService.updateDoctor(
-  //     doctorId,
-  //     formData,
-  //   );
-
-  //   if (updateDoctor) {
-  //     await this.adminService.addDoctorRequest(updateDoctor._id);
-  //   }
-
-  //   return updateDoctor;
-  // }
 
   // Endpoint for delete doctor
   @UseGuards(RolesGuard)
